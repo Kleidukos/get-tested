@@ -1,13 +1,14 @@
 module Main where
 
+import Data.Aeson qualified as Aeson
+import Data.ByteString.Lazy (ByteString)
+import Data.ByteString.Lazy.Char8 qualified as ByteString
+import Data.Vector qualified as Vector
 import Effectful
 import Effectful.Error.Static
 import Extract
 import Options.Applicative
 import Types
-import qualified Data.Aeson as Aeson
-import Data.ByteString.Lazy (ByteString)
-import qualified Data.ByteString.Lazy.Char8 as ByteString
 
 newtype Options = Options {path :: FilePath}
   deriving stock (Show, Eq)
@@ -30,7 +31,8 @@ runOptions options = do
   genericPackageDescription <- loadFile options.path
   let supportedCompilers = extractTestedWith genericPackageDescription
       result = getVersions supportedCompilers
-  pure $ Aeson.encode $ ActionMatrix result
+      include = Vector.map (\version -> PlatformAndVersion "ubuntu-latest" version) result
+  pure $ Aeson.encode $ ActionMatrix include
 
 withInfo :: Parser a -> String -> ParserInfo a
 withInfo opts desc = info (helper <*> opts) $ progDesc desc

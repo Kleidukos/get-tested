@@ -5,16 +5,17 @@ module Types where
 import Data.Aeson
 import Data.Set (Set)
 import Data.Set qualified as Set
+import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Text.Display
 import Data.Text.Lazy.Builder qualified as Builder
+import Data.Vector (Vector)
 import Distribution.Compiler
 import Distribution.Parsec (simpleParsec)
 import Distribution.Pretty qualified as Pretty
 import Distribution.Types.Version
 import Distribution.Types.VersionRange
 import Distribution.Version qualified as Version
-import Data.Vector (Vector)
 import GHC.Generics (Generic)
 
 data ProcessingError
@@ -46,7 +47,14 @@ instance FromJSON VersionRange where
     maybe (fail "Invalid version range") pure (simpleParsec $ Text.unpack s)
 
 data ActionMatrix = ActionMatrix
-  { include :: Vector Version
+  { include :: Vector PlatformAndVersion
+  }
+  deriving stock (Eq, Ord, Generic)
+  deriving anyclass (ToJSON)
+
+data PlatformAndVersion = PlatformAndVersion
+  { os :: Text
+  , ghc :: Version
   }
   deriving stock (Eq, Ord, Generic)
   deriving anyclass (ToJSON)
