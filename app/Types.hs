@@ -16,6 +16,7 @@ import Distribution.Types.VersionRange
 import Distribution.Version qualified as Version
 import Data.Vector (Vector)
 import GHC.Generics (Generic)
+import Data.Text (Text)
 
 data ProcessingError
   = CabalFileNotFound FilePath
@@ -46,7 +47,14 @@ instance FromJSON VersionRange where
     maybe (fail "Invalid version range") pure (simpleParsec $ Text.unpack s)
 
 data ActionMatrix = ActionMatrix
-  { include :: Vector Version
+  { include :: Vector PlatformAndVersion
+  }
+  deriving stock (Eq, Ord, Generic)
+  deriving anyclass (ToJSON)
+
+data PlatformAndVersion = PlatformAndVersion
+  { os :: Text
+  , ghc :: Version
   }
   deriving stock (Eq, Ord, Generic)
   deriving anyclass (ToJSON)
