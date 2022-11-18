@@ -1,14 +1,14 @@
 module Main where
 
+import Data.Aeson qualified as Aeson
+import Data.ByteString.Lazy (ByteString)
+import Data.ByteString.Lazy.Char8 qualified as ByteString
+import Data.Vector qualified as Vector
 import Effectful
 import Effectful.Error.Static
 import Extract
 import Options.Applicative
 import Types
-import qualified Data.Aeson as Aeson
-import Data.ByteString.Lazy (ByteString)
-import qualified Data.ByteString.Lazy.Char8 as ByteString
-import qualified Data.Vector as Vector
 
 newtype Options = Options {path :: FilePath}
   deriving stock (Show, Eq)
