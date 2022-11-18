@@ -1,0 +1,20 @@
+packages: ./
+
+with-compiler: ghc-9.2
+
+jobs: 8
+
+tests: True
+
+allow-newer: all
+
+test-show-details: direct
+
+package *
+  ghc-options: +RTS -A32m -RTS -j
+
+package get-tested
+  ghc-options: -static
+  cc-options: -static
+  ld-options: -static -pthread
+
