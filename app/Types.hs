@@ -62,7 +62,7 @@ data PlatformAndVersion = PlatformAndVersion
 versionList :: Set Version
 versionList =
   Set.fromList
-    [ Version.mkVersion [9, 4, 1]
+    [ Version.mkVersion [9, 4, 2]
     , Version.mkVersion [9, 2, 4]
     , Version.mkVersion [9, 0, 2]
     , Version.mkVersion [8, 10, 7]
