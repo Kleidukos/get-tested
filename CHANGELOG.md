@@ -1,4 +1,4 @@
-# Revision history for get-tested-ghc
+# Revision history for get-tested
 
 ## 0.1.0.0 -- YYYY-mm-dd
 

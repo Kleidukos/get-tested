@@ -20,7 +20,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        ghc: ${{ fromJSON(needs.generateMatrix.outputs.matrix) }}
+        ghc: ${{ fromJSON(needs.generateMatrix.outputs.ghcs) }}
     steps:
       - name: Checkout base repo
         uses: actions/checkout@v2

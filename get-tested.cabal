@@ -1,10 +1,10 @@
 cabal-version:   3.4
-name:            get-tested-ghc
+name:            get-tested
 version:         0.1.0.0
 synopsis:        Get the tested-with stanza of your Cabal file
 
 -- description:
-homepage:        https://github.com/Kleidukos/get-tested-ghc
+homepage:        https://github.com/Kleidukos/get-tested
 license:         BSD-3-Clause
 license-file:    LICENSE
 author:          Hécate Moonlight
@@ -18,7 +18,7 @@ extra-doc-files: CHANGELOG.md
 
 -- extra-source-files:
 
-executable get-tested-ghc
+executable get-tested
   main-is:            Main.hs
   ghc-options:
     -Wall -Wcompat -Widentities -Wincomplete-record-updates
