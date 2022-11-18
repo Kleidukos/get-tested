@@ -13,8 +13,14 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - id: set-matrix
-        run: echo "matrix={\"include\":[{\"ghc\":\"9.2.1\",\"os\":\"ubuntu-latest\"},{\"ghc\":\"9.2.2\",\"os\":\"ubuntu-latest\"},{\"ghc\":\"9.2.3\",\"os\":\"ubuntu-latest\"},{\"ghc\":\"9.2.4\",\"os\":\"ubuntu-latest\"}]}" >> $GITHUB_OUTPUT
+      - name: Checkout base repo
+        uses: actions/checkout@v2
+      - name: Extract the tested GHC versions
+        id: set-matrix
+        run: |
+          wget https://github.com/Kleidukos/get-tested/releases/download/v0.1.0.0/get-tested-0.1.0.0-linux-amd64 -O get-tested
+          chmod +x get-tested
+          ./get-tested get-tested.cabal >> $GITHUB_OUTPUT
   tests:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
     needs: generateMatrix
