@@ -18,7 +18,7 @@ main = do
   result <- execParser (parseOptions `withInfo` "Extract the tested-with stanza from your cabal file")
   processingResult <- runEff . runErrorNoCallStack $ runOptions result
   case processingResult of
-    Right json -> ByteString.putStrLn json
+    Right json -> ByteString.putStrLn $ "matrix=" <> json
     Left _ -> error "mleh!"
 
 parseOptions :: Parser Options

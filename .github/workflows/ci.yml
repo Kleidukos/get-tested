@@ -14,7 +14,7 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - id: set-matrix
-        run: echo "matrix={\"include\":[{\"ghc\":\"8.8.4\",\"os\":\"ubuntu-latest\"},{\"ghc\":\"8.10.7\",\"os\":\"ubuntu-latest\"},{\"ghc\":\"9.0.2\",\"os\":\"ubuntu-latest\"},{\"ghc\":\"9.2.4\",\"os\":\"ubuntu-latest\"}]}" >> $GITHUB_OUTPUT
+        run: echo "matrix={\"include\":[{\"ghc\":\"9.2.1\",\"os\":\"ubuntu-latest\"},{\"ghc\":\"9.2.2\",\"os\":\"ubuntu-latest\"},{\"ghc\":\"9.2.3\",\"os\":\"ubuntu-latest\"},{\"ghc\":\"9.2.4\",\"os\":\"ubuntu-latest\"}]}" >> $GITHUB_OUTPUT
   tests:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
     needs: generateMatrix
