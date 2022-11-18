@@ -1,0 +1,70 @@
+cabal-version:   3.4
+name:            get-tested-ghc
+version:         0.1.0.0
+synopsis:        Get the tested-with stanza of your Cabal file
+
+-- description:
+homepage:        https://github.com/Kleidukos/get-tested-ghc
+license:         BSD-3-Clause
+license-file:    LICENSE
+author:          Hécate Moonlight
+maintainer:      hecate+github@glitchbra.in
+tested-with:     GHC >=9.2 && <9.3
+
+-- copyright:
+category:        Development
+build-type:      Simple
+extra-doc-files: CHANGELOG.md
+
+-- extra-source-files:
+
+executable get-tested-ghc
+  main-is:            Main.hs
+  ghc-options:
+    -Wall -Wcompat -Widentities -Wincomplete-record-updates
+    -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints
+    -fhide-source-paths -Wno-unused-do-bind -fshow-hole-constraints
+    -fprint-potential-instances -Wno-unticked-promoted-constructors
+    -Werror=unused-imports -flate-specialise -funbox-strict-fields
+    -finline-generics-aggressively -fexpose-all-unfoldings -threaded
+    "-with-rtsopts=-N -T"
+
+  default-extensions:
+    NoStarIsType
+    DataKinds
+    DeriveAnyClass
+    DerivingStrategies
+    DerivingVia
+    DuplicateRecordFields
+    LambdaCase
+    OverloadedLabels
+    OverloadedRecordDot
+    OverloadedStrings
+    PackageImports
+    PolyKinds
+    QuasiQuotes
+    RecordWildCards
+    StrictData
+    TypeFamilies
+    ViewPatterns
+
+  other-modules:
+    Extract
+    Types
+
+  build-depends:
+    , aeson                 ^>=2.1
+    , base                  ^>=4.16
+    , bytestring            ^>=0.11
+    , Cabal-syntax          ^>=3.8
+    , containers            ^>=0.6
+    , directory             ^>=1.3
+    , effectful-core        ^>=2.2
+    , filepath              ^>=1.4
+    , optparse-applicative  ^>=0.17
+    , text                  ^>=2.0
+    , text-display          ^>=0.0
+    , vector                ^>=0.13
+
+  hs-source-dirs:     app
+  default-language:   GHC2021

@@ -1,0 +1,14 @@
+packages: ./
+
+with-compiler: ghc-9.2
+
+jobs: 8
+
+tests: True
+
+allow-newer: all
+
+test-show-details: direct
+
+package *
+  ghc-options: +RTS -A32m -RTS -j
