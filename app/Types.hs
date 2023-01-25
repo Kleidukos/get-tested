@@ -71,8 +71,10 @@ osList =
 versionList :: Set Version
 versionList =
   Set.fromList
-    [ Version.mkVersion [9, 4, 2]
+    [ Version.mkVersion [9, 4, 4]
+    , Version.mkVersion [9, 4, 2]
     , Version.mkVersion [9, 4, 1]
+    , Version.mkVersion [9, 2, 5]
     , Version.mkVersion [9, 2, 4]
     , Version.mkVersion [9, 2, 3]
     , Version.mkVersion [9, 2, 2]
