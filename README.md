@@ -19,7 +19,7 @@ jobs:
       - name: Extract the tested GHC versions                                                                           
         id: set-matrix                                                                                                  
         run: |                                                                                                          
-          wget https://github.com/Kleidukos/get-tested/releases/download/v0.1.2.0/get-tested-0.1.2.0-linux-amd64 -O get-tested
+          wget https://github.com/Kleidukos/get-tested/releases/download/v0.1.3.0/get-tested-0.1.3.0-linux-amd64 -O get-tested
           chmod +x get-tested                                                                                           
           ./get-tested --ubuntu --macos text-display.cabal >> $GITHUB_OUTPUT                                            
   tests:                                                                                                                
