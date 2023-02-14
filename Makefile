@@ -11,7 +11,7 @@ test: ## Run the test suite
 	@cabal test
 
 lint: ## Run the code linter (HLint)
-	@find app -name "*.hs" | parallel -j $(PROCS) -- hlint --refactor-options="-i" --refactor {}
+	@find test src -name "*.hs" | xargs -P $(PROCS) -I {} hlint --refactor-options="-i" --refactor {}
 
 style: ## Run the code styler (stylish-haskell)
 	@fourmolu -q --mode inplace app
