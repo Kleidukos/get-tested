@@ -3,8 +3,6 @@
 module Types where
 
 import Data.Aeson
-import Data.Set (Set)
-import Data.Set qualified as Set
 import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Text.Display
@@ -16,7 +14,6 @@ import Distribution.Parsec (simpleParsec)
 import Distribution.Pretty qualified as Pretty
 import Distribution.Types.Version
 import Distribution.Types.VersionRange
-import Distribution.Version qualified as Version
 import GHC.Generics (Generic)
 
 data ProcessingError
@@ -66,42 +63,4 @@ osList =
     [ "ubuntu-latest"
     , "macos-latest"
     , "windows-latest"
-    ]
-
-versionList :: Set Version
-versionList =
-  Set.fromList
-    [ Version.mkVersion [9, 4, 4]
-    , Version.mkVersion [9, 4, 2]
-    , Version.mkVersion [9, 4, 1]
-    , Version.mkVersion [9, 2, 5]
-    , Version.mkVersion [9, 2, 4]
-    , Version.mkVersion [9, 2, 3]
-    , Version.mkVersion [9, 2, 2]
-    , Version.mkVersion [9, 2, 1]
-    , Version.mkVersion [9, 0, 2]
-    , Version.mkVersion [9, 0, 1]
-    , Version.mkVersion [8, 10, 7]
-    , Version.mkVersion [8, 10, 6]
-    , Version.mkVersion [8, 10, 5]
-    , Version.mkVersion [8, 10, 4]
-    , Version.mkVersion [8, 10, 3]
-    , Version.mkVersion [8, 10, 2]
-    , Version.mkVersion [8, 10, 1]
-    , Version.mkVersion [8, 8, 4]
-    , Version.mkVersion [8, 8, 3]
-    , Version.mkVersion [8, 8, 2]
-    , Version.mkVersion [8, 8, 1]
-    , Version.mkVersion [8, 6, 5]
-    , Version.mkVersion [8, 6, 4]
-    , Version.mkVersion [8, 6, 3]
-    , Version.mkVersion [8, 6, 2]
-    , Version.mkVersion [8, 6, 1]
-    , Version.mkVersion [8, 4, 4]
-    , Version.mkVersion [8, 4, 3]
-    , Version.mkVersion [8, 4, 2]
-    , Version.mkVersion [8, 4, 1]
-    , Version.mkVersion [8, 2, 2]
-    , Version.mkVersion [8, 0, 2]
-    , Version.mkVersion [7, 10, 3]
     ]
