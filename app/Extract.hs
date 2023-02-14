@@ -1,4 +1,9 @@
-module Extract where
+{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
+
+module Extract
+  ( loadFile
+  , extractTestedWith
+  ) where
 
 import Control.Monad
 import Data.ByteString qualified as BS
@@ -14,7 +19,7 @@ import Distribution.Fields
 import Distribution.PackageDescription
 import Distribution.PackageDescription.Parsec
 import Distribution.Types.Version (Version)
-import Distribution.Types.VersionRange (VersionRange, withinRange)
+import Distribution.Types.VersionRange.Internal (VersionRange (..))
 import Effectful
 import Effectful.Error.Static (Error, throwError)
 import System.Directory qualified as System
@@ -50,24 +55,17 @@ parseString name bs = do
       logAttention (display $ show err)
       throwError $ CabalFileCouldNotBeParsed name
 
-extractTestedWith :: GenericPackageDescription -> Vector VersionRange
+extractTestedWith :: GenericPackageDescription -> Vector Version
 extractTestedWith genericPackageDescription =
   Vector.fromList genericPackageDescription.packageDescription.testedWith
     & Vector.filter (\(flavour, _) -> flavour == GHC)
-    & Vector.filter (\(_, versionRange) -> any (`withinRange` versionRange) versionList)
+    & Vector.filter (\(_, versionRange) -> isExactVersion versionRange)
+    & Vector.map (\(flavour, ThisVersion version) -> (flavour, version))
     & Vector.map snd
 
-getVersions :: Vector VersionRange -> Vector Version
-getVersions supportedCompilers =
-  foldMap
-    (\version -> Vector.foldMap (\versionRange -> checkVersion version versionRange) supportedCompilers)
-    versionList
-
-checkVersion :: Version -> VersionRange -> Vector Version
-checkVersion version versionRange =
-  if version `withinRange` versionRange
-    then Vector.singleton version
-    else Vector.empty
+isExactVersion :: VersionRange -> Bool
+isExactVersion (ThisVersion _) = True
+isExactVersion _ = False
 
 logAttention :: (IOE :> es) => Text -> Eff es ()
 logAttention message = liftIO $ BS.hPutStrLn stdout $ Text.encodeUtf8 message

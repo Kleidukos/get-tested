@@ -46,13 +46,12 @@ runOptions :: Options -> Eff [Error ProcessingError, IOE] ByteString
 runOptions options = do
   genericPackageDescription <- loadFile options.path
   let supportedCompilers = extractTestedWith genericPackageDescription
-      result = getVersions supportedCompilers
       filteredList =
         osList
           & (if options.macosFlag then id else Vector.filter (/= "macos-latest"))
           & (if options.windowsFlag then id else Vector.filter (/= "windows-latest"))
           & (if options.ubuntuFlag then id else Vector.filter (/= "ubuntu-latest"))
-      include = PlatformAndVersion <$> filteredList <*> result
+      include = PlatformAndVersion <$> filteredList <*> supportedCompilers
   pure $ Aeson.encode $ ActionMatrix include
 
 withInfo :: Parser a -> String -> ParserInfo a
