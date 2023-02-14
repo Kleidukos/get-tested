@@ -19,6 +19,7 @@ import Effectful
 import Effectful.Error.Static (Error, throwError)
 import System.Directory qualified as System
 import System.IO (stdout)
+
 import Types
 
 -- | Loads and parses a Cabal file
