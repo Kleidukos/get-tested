@@ -7,8 +7,10 @@ import Data.Function ((&))
 import Data.Vector qualified as Vector
 import Effectful
 import Effectful.Error.Static
-import Extract
 import Options.Applicative
+import System.Exit
+
+import Extract
 import Types
 
 data Options = Options
@@ -25,7 +27,12 @@ main = do
   processingResult <- runEff . runErrorNoCallStack $ runOptions result
   case processingResult of
     Right json -> ByteString.putStrLn $ "matrix=" <> json
-    Left _ -> error "mleh!"
+    Left (CabalFileNotFound path) -> do
+      putStrLn $ "Could not find cabal file at path " <> path
+      exitFailure
+    Left (CabalFileCouldNotBeParsed path) -> do
+      putStrLn $ "Could not parse cabal file at path " <> path
+      exitFailure
 
 parseOptions :: Parser Options
 parseOptions =
