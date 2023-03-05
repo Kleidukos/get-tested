@@ -59,6 +59,7 @@ extractTestedWith :: GenericPackageDescription -> Vector Version
 extractTestedWith genericPackageDescription =
   Vector.fromList genericPackageDescription.packageDescription.testedWith
     & Vector.filter (\(flavour, _) -> flavour == GHC)
+    & expandUnionVersionRanges
     & Vector.filter (\(_, versionRange) -> isExactVersion versionRange)
     & Vector.map (\(flavour, ThisVersion version) -> (flavour, version))
     & Vector.map snd
@@ -69,3 +70,17 @@ isExactVersion _ = False
 
 logAttention :: (IOE :> es) => Text -> Eff es ()
 logAttention message = liftIO $ BS.hPutStrLn stdout $ Text.encodeUtf8 message
+
+expandUnionVersionRanges :: Vector (CompilerFlavor, VersionRange) -> Vector (CompilerFlavor, VersionRange)
+expandUnionVersionRanges ranges =
+  Vector.concatMap
+    ( \(f, range) ->
+        let expandedVersions = expandUnionVersionRange range
+         in Vector.map (\v -> (f, v)) expandedVersions
+    )
+    ranges
+
+expandUnionVersionRange :: VersionRange -> Vector VersionRange
+expandUnionVersionRange (ThisVersion v) = Vector.singleton (ThisVersion v)
+expandUnionVersionRange (UnionVersionRanges r1 r2) = expandUnionVersionRange r1 <> expandUnionVersionRange r2
+expandUnionVersionRange _ = Vector.empty
