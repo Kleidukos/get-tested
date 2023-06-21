@@ -26,7 +26,7 @@ main = do
   result <- execParser (parseOptions `withInfo` "Extract the tested-with stanza from your cabal file")
   processingResult <- runEff . runErrorNoCallStack $ runOptions result
   case processingResult of
-    Right json -> ByteString.putStrLn $ "matrix=" <> json
+    Right json -> ByteString.putStrLn json
     Left (CabalFileNotFound path) -> do
       putStrLn $ "Could not find cabal file at path " <> path
       exitFailure
@@ -51,8 +51,11 @@ runOptions options = do
           & (if options.macosFlag then id else Vector.filter (/= "macos-latest"))
           & (if options.windowsFlag then id else Vector.filter (/= "windows-latest"))
           & (if options.ubuntuFlag then id else Vector.filter (/= "ubuntu-latest"))
-      include = PlatformAndVersion <$> filteredList <*> supportedCompilers
-  pure $ Aeson.encode $ ActionMatrix include
+  pure $ if null filteredList
+    then Aeson.encode supportedCompilers
+    else do
+      let include = PlatformAndVersion <$> filteredList <*> supportedCompilers
+      "matrix=" <> Aeson.encode (ActionMatrix include)
 
 withInfo :: Parser a -> String -> ParserInfo a
 withInfo opts desc = info (helper <*> opts) $ progDesc desc
