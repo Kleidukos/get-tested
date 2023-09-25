@@ -27,7 +27,7 @@ jobs:
         version: '3.5'
 
     - name: 'Run HLint'
-      uses: rwe/actions-hlint-run@v1
+      uses: rwe/actions-hlint-run@v2
       with:
         path: '["app/"]'
         fail-on: warning
