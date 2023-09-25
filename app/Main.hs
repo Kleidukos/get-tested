@@ -51,11 +51,12 @@ runOptions options = do
           & (if options.macosFlag then id else Vector.filter (/= "macos-latest"))
           & (if options.windowsFlag then id else Vector.filter (/= "windows-latest"))
           & (if options.ubuntuFlag then id else Vector.filter (/= "ubuntu-latest"))
-  pure $ if null filteredList
-    then Aeson.encode supportedCompilers
-    else do
-      let include = PlatformAndVersion <$> filteredList <*> supportedCompilers
-      "matrix=" <> Aeson.encode (ActionMatrix include)
+  pure $
+    if null filteredList
+      then Aeson.encode supportedCompilers
+      else do
+        let include = PlatformAndVersion <$> filteredList <*> supportedCompilers
+        "matrix=" <> Aeson.encode (ActionMatrix include)
 
 withInfo :: Parser a -> String -> ParserInfo a
 withInfo opts desc = info (helper <*> opts) $ progDesc desc
