@@ -1,6 +1,6 @@
 packages: ./
 
-with-compiler: ghc-9.4
+with-compiler: ghc-9.6
 
 jobs: 8
 
