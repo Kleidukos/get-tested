@@ -14,7 +14,7 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - name: Checkout base repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Extract the tested GHC versions
         id: set-matrix
         run: |
@@ -29,7 +29,7 @@ jobs:
       matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
     steps:
       - name: Checkout base repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Haskell
         id: setup-haskell
         uses: haskell/actions/setup@v1
