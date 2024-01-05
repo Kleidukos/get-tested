@@ -6,7 +6,9 @@ inputs:
     required: true
 
 outputs:
-  matrix: ${{ steps.set-matrix.outputs.matrix }}
+  matrix:
+    description: "The GHC version matrix, to be used as `matrix: ${{ fromJSON(needs.your-get-tested-jobname.outputs.matrix) }}`"
+    value: ${{ steps.set-matrix.outputs.matrix }}
 
 runs:
   using: "composite"
@@ -15,6 +17,7 @@ runs:
       uses: actions/checkout@v2
     - name: Extract the tested GHC versions
       id: set-matrix
+      shell: bash
       run: |
         wget https://github.com/Kleidukos/get-tested/releases/download/v0.1.5.0/get-tested-0.1.5.0-linux-amd64 -O get-tested
         chmod +x get-tested
