@@ -7,7 +7,7 @@ inputs:
 
 outputs:
   matrix:
-    description: "The GHC version matrix, to be used as `matrix: ${{ fromJSON(needs.your-get-tested-jobname.outputs.matrix) }}`"
+    description: "The GHC version matrix"
     value: ${{ steps.set-matrix.outputs.matrix }}
 
 runs:
