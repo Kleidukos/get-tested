@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Extract the tested GHC versions
-        uses: turion/get-tested@v0.1.5.0-action-5
+        uses: turion/get-tested@v0.1.5.0
   tests:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
     needs: generateMatrix
