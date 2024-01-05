@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Generate matrix
-        uses: turion/get-tested@v0.1.5.0-action-2
+        uses: turion/get-tested@v0.1.5.0-action-4
   tests:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
     needs: generate-matrix
