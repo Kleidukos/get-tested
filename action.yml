@@ -18,11 +18,9 @@ runs:
     - name: Extract the tested GHC versions
       id: set-matrix
       shell: bash
-      env:
-        ACTION_PATH: ${{ env.GITHUB_ACTION_PATH }}
       run: |
         # Extract e.g. 0.1 from /runner/foo/bar/.../v0.1
-        export version=$(basename $ACTION_PATH | tail -c +1)
+        export version=$(basename $GITHUB_ACTION_PATH | tail -c +1)
         wget https://github.com/Kleidukos/get-tested/releases/download/v${version}/get-tested-${version}-linux-amd64 -O get-tested
         chmod +x get-tested
         ./get-tested --ubuntu --macos ${{ inputs.cabal-file }} >> $GITHUB_OUTPUT
