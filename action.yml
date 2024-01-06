@@ -28,8 +28,7 @@ runs:
   steps:
     - name: Checkout base repo
       uses: actions/checkout@v2
-    - name: Extract the tested GHC versions
-      id: set-matrix
+    - name: Set up options
       shell: bash
       run: |
         # Extract e.g. 0.1 from /runner/foo/bar/.../v0.1
@@ -51,7 +50,10 @@ runs:
         if [[ ${{ inputs.ubuntu}} = "true" ]]
         then echo "UBUNTU=--ubuntu" >> $GITHUB_ENV
         fi
-
+    - name: Extract the tested GHC versions
+      id: set-matrix
+      shell: bash
+      run: |
         ./get-tested $WINDOWS $MACOS $UBUNTU ${{ inputs.cabal-file }} >> $GITHUB_OUTPUT
 
 branding:
