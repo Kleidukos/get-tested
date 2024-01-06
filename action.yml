@@ -31,7 +31,7 @@ runs:
     - name: Set up options
       shell: bash
       run: |
-        # Extract the version and options
+        # Extract e.g. 0.1 from /runner/foo/bar/.../v0.1
         export version=$(basename $GITHUB_ACTION_PATH | tail -c +2)
         wget -q https://github.com/Kleidukos/get-tested/releases/download/v${version}/get-tested-${version}-linux-amd64 -O get-tested
         chmod +x get-tested
