@@ -35,7 +35,6 @@ runs:
         export version=$(basename $GITHUB_ACTION_PATH | tail -c +2)
         wget -q https://github.com/Kleidukos/get-tested/releases/download/v${version}/get-tested-${version}-linux-amd64 -O get-tested
         chmod +x get-tested
-        file ./get-tested
 
         echo "::debug:: Windows enabled: ${{ inputs.windows }}"
         if [[ ${{ inputs.windows}} = "true" ]]
@@ -56,6 +55,7 @@ runs:
       id: set-matrix
       shell: bash
       run: |
+        ./get-tested $WINDOWS $MACOS $UBUNTU ${{ inputs.cabal-file }}
         ./get-tested $WINDOWS $MACOS $UBUNTU ${{ inputs.cabal-file }} >> $GITHUB_OUTPUT
 
 branding:
