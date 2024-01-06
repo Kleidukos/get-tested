@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Extract the tested GHC versions
-        uses: kleidukos/get-tested@v0.1.5.0
+        uses: kleidukos/get-tested@v0.1.6.0
   tests:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
     needs: generateMatrix
