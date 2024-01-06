@@ -35,6 +35,7 @@ runs:
         export version=$(basename $GITHUB_ACTION_PATH | tail -c +2)
         wget -q https://github.com/Kleidukos/get-tested/releases/download/v${version}/get-tested-${version}-linux-amd64 -O get-tested
         chmod +x get-tested
+        file ./get-tested
 
         echo "::debug:: Windows enabled: ${{ inputs.windows }}"
         if [[ ${{ inputs.windows}} = "true" ]]
@@ -50,6 +51,7 @@ runs:
         if [[ ${{ inputs.ubuntu}} = "true" ]]
         then echo "UBUNTU=--ubuntu" >> $GITHUB_ENV
         fi
+
     - name: Extract the tested GHC versions
       id: set-matrix
       shell: bash
