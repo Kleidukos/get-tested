@@ -1,0 +1,30 @@
+name: "Generate matrix from cabal"
+
+inputs:
+  cabal-file:
+    description: "The path to your cabal file, e.g. somefolder/myproject.cabal"
+    required: true
+
+outputs:
+  matrix:
+    description: "The GHC version matrix"
+    value: ${{ steps.set-matrix.outputs.matrix }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout base repo
+      uses: actions/checkout@v2
+    - name: Extract the tested GHC versions
+      id: set-matrix
+      shell: bash
+      run: |
+        # Extract e.g. 0.1 from /runner/foo/bar/.../v0.1
+        export version=$(basename $GITHUB_ACTION_PATH | tail -c +2)
+        wget https://github.com/Kleidukos/get-tested/releases/download/v${version}/get-tested-${version}-linux-amd64 -O get-tested
+        chmod +x get-tested
+        ./get-tested --ubuntu --macos ${{ inputs.cabal-file }} >> $GITHUB_OUTPUT
+
+branding:
+  icon: 'list'
+  color: 'blue'

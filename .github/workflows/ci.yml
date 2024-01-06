@@ -10,17 +10,11 @@ jobs:
   generate-matrix:
     name: "Generate matrix from cabal"
     runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - name: Checkout base repo
-        uses: actions/checkout@v4
-      - name: Extract the tested GHC versions
-        id: set-matrix
-        run: |
-          wget https://github.com/Kleidukos/get-tested/releases/download/v0.1.5.0/get-tested-0.1.5.0-linux-amd64 -O get-tested
-          chmod +x get-tested
-          ./get-tested --ubuntu --macos get-tested.cabal >> $GITHUB_OUTPUT
+      - name: Generate matrix
+        uses: turion/get-tested@v0.1.5.0
+        with:
+          cabal-file: get-tested.cabal
   tests:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
     needs: generate-matrix
