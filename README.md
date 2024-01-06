@@ -8,21 +8,25 @@ Put this in your GitHub Action file
 
 ```yaml
 jobs:
-  generateMatrix:
+  generate-matrix:
     name: "Generate matrix from cabal"
+    outputs: 
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     runs-on: ubuntu-latest
     steps:
       - name: Extract the tested GHC versions
+        id: set-matrix
         uses: kleidukos/get-tested@v0.1.6.0
         with:
-          cabal-file: "path/to/your.cabal"
+          cabal-file: get-tested.cabal
           ubuntu: true
+          version: 0.1.6.0
   tests:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
-    needs: generateMatrix
+    needs: generate-matrix
     runs-on: ${{ matrix.os }}
     strategy:
-      matrix: ${{ fromJSON(needs.generateMatrix.outputs.matrix) }}
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
 ```
 
 ![](./showcase.png)
