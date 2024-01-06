@@ -48,7 +48,7 @@ runs:
         then echo "UBUNTU=--ubuntu" >> $GITHUB_ENV
         fi
 
-        ./get-tested $WINDOWS $MACOS $UBUNTU ${{ inputs.cabal-file }} >> $GITHUB_OUTPUT
+        ./get-tested ${{ env.WINDOWS }} ${{ env.MACOS }} ${{ env.UBUNTU }} ${{ inputs.cabal-file }} >> $GITHUB_OUTPUT
 
 branding:
   icon: 'list'
