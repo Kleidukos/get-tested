@@ -14,6 +14,9 @@ jobs:
     steps:
       - name: Extract the tested GHC versions
         uses: kleidukos/get-tested@v0.1.6.0
+        with:
+          cabal-file: "path/to/your.cabal"
+          ubuntu: true
   tests:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
     needs: generateMatrix
