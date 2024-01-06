@@ -34,22 +34,26 @@ runs:
       run: |
         # Extract e.g. 0.1 from /runner/foo/bar/.../v0.1
         export version=$(basename $GITHUB_ACTION_PATH | tail -c +2)
-        wget https://github.com/Kleidukos/get-tested/releases/download/v${version}/get-tested-${version}-linux-amd64 -O get-tested
+        wget -q https://github.com/Kleidukos/get-tested/releases/download/v${version}/get-tested-${version}-linux-amd64 -O get-tested
         chmod +x get-tested
-        echo ${{ inputs.windows }}
-        if [[ ${{ inputs.windows}} -eq "true" ]]
+
+        echo "::debug:: Windows enabled: ${{ inputs.windows }}"
+        if [[ ${{ inputs.windows}} = "true" ]]
         then echo "WINDOWS=--windows" >> $GITHUB_ENV
         fi
 
-        echo ${{ inputs.macos }}
-        if [[ ${{ inputs.macos}} -eq "true" ]]
+        echo "::debug:: macOS enabled: ${{ inputs.macos }}"
+        if [[ ${{ inputs.macos}} = "true" ]]
         then echo "MACOS=--macos" >> $GITHUB_ENV
         fi
 
-        echo ${{ inputs.ubuntu }}
-        if [[ ${{ inputs.ubuntu}} -eq "true" ]]
+        echo "::debug:: Ubuntu enabled: ${{ inputs.ubuntu }}"
+        if [[ ${{ inputs.ubuntu}} = "true" ]]
         then echo "UBUNTU=--ubuntu" >> $GITHUB_ENV
         fi
+
+        if [[ -z ${{ env.WINDOWS }} && -z ${{ env.MACOS }} && -z ${{ env.UBUNTU }} ]]
+        then echo "All three supported OS inputs are unset, you have to pick one at least!" ; exit 1
 
         ./get-tested ${{ env.WINDOWS }} ${{ env.MACOS }} ${{ env.UBUNTU }} ${{ inputs.cabal-file }} >> $GITHUB_OUTPUT
 
