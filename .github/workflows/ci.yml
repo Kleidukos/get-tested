@@ -9,9 +9,12 @@ on:
 jobs:
   generate-matrix:
     name: "Generate matrix from cabal"
+    outputs: 
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     runs-on: ubuntu-latest
     steps:
       - name: Extract the tested GHC versions
+        id: set-matrix
         uses: kleidukos/get-tested@f111f862f481884c26faa691de3c51ae110cc766
         with:
           cabal-file: get-tested.cabal
