@@ -5,6 +5,18 @@ inputs:
   cabal-file:
     description: "The path to your cabal file, e.g. somefolder/myproject.cabal"
     required: true
+  windows:
+    description: "Enable Windows runner"
+    required: false
+    default: false
+  macos:
+    description: "Enable macOS runner"
+    required: false
+    default: false
+  ubuntu:
+    description: "Enable Ubuntu runner"
+    required: false
+    default: false
 
 outputs:
   matrix:
@@ -24,7 +36,19 @@ runs:
         export version=$(basename $GITHUB_ACTION_PATH | tail -c +2)
         wget https://github.com/Kleidukos/get-tested/releases/download/v${version}/get-tested-${version}-linux-amd64 -O get-tested
         chmod +x get-tested
-        ./get-tested --ubuntu --macos ${{ inputs.cabal-file }} >> $GITHUB_OUTPUT
+        if [[ ${{ inputs.windows}} -eq "true" ]]
+        then echo "WINDOWS=--windows" >> $GITHUB_ENV
+        fi
+
+        if [[ ${{ inputs.macos}} -eq "true" ]]
+        then echo "MACOS=--macos" >> $GITHUB_ENV
+        fi
+
+        if [[ ${{ inputs.ubuntu}} -eq "true" ]]
+        then echo "UBUNTU=--ubuntu" >> $GITHUB_ENV
+        fi
+
+        ./get-tested $WINDOWS $MACOS $UBUNTU ${{ inputs.cabal-file }} >> $GITHUB_OUTPUT
 
 branding:
   icon: 'list'
