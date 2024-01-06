@@ -4,7 +4,16 @@ A CLI tool that retrieves the `tested-with` stanza of a cabal file and formats i
 
 ## Usage
 
-Put this in your GitHub Action file
+The inputs of the action (under the `with:` stanza) are the following:
+
+*  cabal-file:
+    The path to your cabal file, e.g. somefolder/myproject.cabal. required;
+*  version: Version of the tool. required;
+*  windows: Enable Windows runner. not required, defaults to false;
+*  macos: Enable macOS runner. not required, defaults to false;
+*  ubuntu: Enable Ubuntu runner. not required, defaults to false.
+
+One of the three OS inputs is required however. See below for an example:
 
 ```yaml
 jobs:
