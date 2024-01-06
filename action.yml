@@ -36,14 +36,17 @@ runs:
         export version=$(basename $GITHUB_ACTION_PATH | tail -c +2)
         wget https://github.com/Kleidukos/get-tested/releases/download/v${version}/get-tested-${version}-linux-amd64 -O get-tested
         chmod +x get-tested
+        echo ${{ inputs.windows }}
         if [[ ${{ inputs.windows}} -eq "true" ]]
         then echo "WINDOWS=--windows" >> $GITHUB_ENV
         fi
 
+        echo ${{ inputs.macos }}
         if [[ ${{ inputs.macos}} -eq "true" ]]
         then echo "MACOS=--macos" >> $GITHUB_ENV
         fi
 
+        echo ${{ inputs.ubuntu }}
         if [[ ${{ inputs.ubuntu}} -eq "true" ]]
         then echo "UBUNTU=--ubuntu" >> $GITHUB_ENV
         fi
