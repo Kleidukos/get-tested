@@ -9,13 +9,17 @@ on:
 jobs:
   generate-matrix:
     name: "Generate matrix from cabal"
+    outputs: 
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     runs-on: ubuntu-latest
     steps:
       - name: Extract the tested GHC versions
-        uses: kleidukos/get-tested@v0.1.6.0
+        id: set-matrix
+        uses: kleidukos/get-tested@f111f862f481884c26faa691de3c51ae110cc766
         with:
           cabal-file: get-tested.cabal
           ubuntu: true
+          version: 0.1.6.0
   tests:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
     needs: generate-matrix
@@ -27,7 +31,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Set up Haskell
         id: setup-haskell
-        uses: haskell/actions/setup@v2
+        uses: haskell-actions/setup@v2
         with:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: 'latest'
