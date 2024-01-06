@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Extract the tested GHC versions
-        uses: kleidukos/get-tested@e0adb8fd5d9f8a93859d4dc52708537f3b88aa7a
+        uses: kleidukos/get-tested@f111f862f481884c26faa691de3c51ae110cc766
         with:
           cabal-file: get-tested.cabal
           ubuntu: true
