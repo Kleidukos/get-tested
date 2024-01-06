@@ -11,7 +11,7 @@ jobs:
     name: "Generate matrix from cabal"
     runs-on: ubuntu-latest
     steps:
-      - name: Generate matrix
+      - name: Extract the tested GHC versions
         uses: kleidukos/get-tested@v0.1.6.0
         with:
           cabal-file: get-tested.cabal
