@@ -2,8 +2,6 @@ packages: ./
 
 with-compiler: ghc-9.6
 
-jobs: 8
-
 tests: True
 
 allow-newer: all
