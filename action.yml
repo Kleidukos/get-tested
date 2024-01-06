@@ -52,9 +52,6 @@ runs:
         then echo "UBUNTU=--ubuntu" >> $GITHUB_ENV
         fi
 
-        if [[ -z ${{ env.WINDOWS }} && -z ${{ env.MACOS }} && -z ${{ env.UBUNTU }} ]]
-        then echo "All three supported OS inputs are unset, you have to pick one at least!" ; exit 1
-
         ./get-tested ${{ env.WINDOWS }} ${{ env.MACOS }} ${{ env.UBUNTU }} ${{ inputs.cabal-file }} >> $GITHUB_OUTPUT
 
 branding:
