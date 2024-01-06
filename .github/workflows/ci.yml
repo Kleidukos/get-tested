@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Generate matrix
-        uses: turion/get-tested@v0.1.5.0
+        uses: kleidukos/get-tested@v0.1.5.0
         with:
           cabal-file: get-tested.cabal
   tests:
