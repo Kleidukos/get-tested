@@ -1,4 +1,5 @@
-name: "Generate matrix from cabal"
+name: "Test supported GHC versions"
+description: "Generate a test matrix from your cabal file's `tested-with` stanza"
 
 inputs:
   cabal-file:
