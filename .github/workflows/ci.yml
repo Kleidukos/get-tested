@@ -9,7 +9,7 @@ on:
 jobs:
   generate-matrix:
     name: "Generate matrix from cabal"
-    outputs: 
+    outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     runs-on: ubuntu-latest
     steps:
@@ -49,3 +49,15 @@ jobs:
         run: cabal new-build
       - name: Test
         run: cabal new-test all
+  test-generate-matrix-default:
+    name: "Tests whether generating the matrix from cabal works with a default version"
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract the tested GHC versions
+        id: set-matrix
+        uses: turion/get-tested@v0.1.6.0
+        with:
+          cabal-file: get-tested.cabal
+          ubuntu: true

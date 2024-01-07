@@ -35,7 +35,10 @@ runs:
       shell: bash
       run: |
         # Extract e.g. 0.1 from /runner/foo/bar/.../v0.1
-        wget -q https://github.com/Kleidukos/get-tested/releases/download/v${{ inputs.version }}/get-tested-${{ inputs.version }}-linux-amd64 -O get-tested
+        export DEFAULT_VERSION=$(basename $GITHUB_ACTION_PATH | tail -c +2)
+        export VERSION=${{ inputs.version }}
+        VERSION=${VERSION:-$DEFAULT_VERSION}
+        wget -q https://github.com/Kleidukos/get-tested/releases/download/v$VERSION/get-tested-$VERSION-linux-amd64 -O get-tested
         chmod +x get-tested
 
         echo "::debug:: Windows enabled: ${{ inputs.windows }}"
