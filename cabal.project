@@ -10,3 +10,4 @@ test-show-details: direct
 
 package *
   ghc-options: +RTS -A32m -RTS -j
+  split-sections: True
