@@ -28,13 +28,13 @@ executable get-tested
     "-with-rtsopts=-N -T" -Wunused-packages
 
   default-extensions:
-    NoStarIsType
     DataKinds
     DeriveAnyClass
     DerivingStrategies
     DerivingVia
     DuplicateRecordFields
     LambdaCase
+    NoStarIsType
     OverloadedLabels
     OverloadedRecordDot
     OverloadedStrings
