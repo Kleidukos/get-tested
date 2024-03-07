@@ -9,11 +9,14 @@ The inputs of the action (under the `with:` stanza) are the following:
 *  cabal-file:
     The path to your cabal file, e.g. somefolder/myproject.cabal. required;
 *  version: Version of the tool. required;
-*  windows: Enable Windows runner. not required, defaults to false;
-*  macos: Enable macOS runner. not required, defaults to false;
-*  ubuntu: Enable Ubuntu runner. not required, defaults to false.
+*  windows: (legacy) Enable Windows runner, latest version. required: false, default: false;
+*  windows-version: Enable Windows runner. If both `windows` and `windows-version` inputs are set, the explicit version will take priority. required: false, default: "";
+*  macos: (legacy) Enable macOS runner, latest version. required: false, default: false;
+*  macos-version: Enable macOS runner.  If both `macos` and `macos-version` inputs are set, the explicit version will take priority. required: false, default: "";
+*  ubuntu: (legacy) Enable Ubuntu runner, latest version. required: false, default: false;
+*  ubuntu-version: Enable Ubuntu runner.  If both `ubuntu` and `ubuntu-version` inputs are set, the explicit version will take priority. required: false, default: "".
 
-One of the three OS inputs is required however. See below for an example:
+See below for an example:
 
 ```yaml
 jobs:
@@ -25,11 +28,12 @@ jobs:
     steps:
       - name: Extract the tested GHC versions
         id: set-matrix
-        uses: kleidukos/get-tested@v0.1.6.0
+        uses: kleidukos/get-tested@v0.1.7.0
         with:
           cabal-file: get-tested.cabal
-          ubuntu: true
-          version: 0.1.6.0
+          ubuntu-version: "latest"
+          macos-version: "13"
+          version: 0.1.7.0
   tests:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
     needs: generate-matrix
