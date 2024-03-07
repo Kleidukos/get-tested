@@ -3,7 +3,6 @@ module Main where
 import Data.Aeson qualified as Aeson
 import Data.ByteString.Lazy (ByteString)
 import Data.ByteString.Lazy.Char8 qualified as ByteString
-import Data.Function ((&))
 import Data.Vector qualified as Vector
 import Effectful
 import Effectful.Error.Static
@@ -12,12 +11,18 @@ import System.Exit
 
 import Extract
 import Types
+import Data.Text (Text)
+import Data.Vector (Vector)
+import Data.Text.Display (display)
 
 data Options = Options
   { path :: FilePath
   , macosFlag :: Bool
+  , macosVersion :: Maybe Text
   , ubuntuFlag :: Bool
+  , ubuntuVersion :: Maybe Text
   , windowsFlag :: Bool
+  , windowsVersion :: Maybe Text
   }
   deriving stock (Show, Eq)
 
@@ -38,19 +43,21 @@ parseOptions :: Parser Options
 parseOptions =
   Options
     <$> argument str (metavar "FILE")
-    <*> switch (long "macos" <> help "Enable the macOS platform")
-    <*> switch (long "ubuntu" <> help "Enable the ubuntu platform")
-    <*> switch (long "windows" <> help "Enable the windows platform")
+    <*> switch (long "macos" <> help "(legacy) Enable the macOS runner's latest version")
+    <*> optional (strOption (long "macos-version" <> metavar "VERSION" <> help "Enable the macOS runner with the selected version"))
+    <*> switch (long "ubuntu" <> help "(legacy) Enable the Ubuntu runner's latest version")
+    <*> optional (strOption (long "ubuntu-version" <> metavar "VERSION" <> help "Enable the Ubuntu runner with the selected version"))
+    <*> switch (long "windows" <> help "(legacy) Enable the Windows runner's latest version")
+    <*> optional (strOption (long "windows-version" <> metavar "VERSION" <> help "Enable the Windows runner with the selected version"))
 
 runOptions :: Options -> Eff [Error ProcessingError, IOE] ByteString
 runOptions options = do
   genericPackageDescription <- loadFile options.path
   let supportedCompilers = extractTestedWith genericPackageDescription
       filteredList =
-        osList
-          & (if options.macosFlag then id else Vector.filter (/= "macos-latest"))
-          & (if options.windowsFlag then id else Vector.filter (/= "windows-latest"))
-          & (if options.ubuntuFlag then id else Vector.filter (/= "ubuntu-latest"))
+          processFlag MacOS options.macosFlag options.macosVersion
+          <> processFlag Ubuntu options.ubuntuFlag options.ubuntuVersion
+          <> processFlag Windows options.windowsFlag options.windowsVersion
   pure $
     if null filteredList
       then Aeson.encode supportedCompilers
@@ -60,3 +67,19 @@ runOptions options = do
 
 withInfo :: Parser a -> String -> ParserInfo a
 withInfo opts desc = info (helper <*> opts) $ progDesc desc
+
+processFlag
+  :: RunnerOS
+    -- ^ OS flag we're processing
+  -> Bool
+    -- ^ explicit version
+  -> Maybe Text
+    -- ^ legacy fallback
+  -> Vector Text
+processFlag runnerOS legacyFallback mExplicitVersion  =
+  case mExplicitVersion of
+    Just explicitVersion -> Vector.singleton (display runnerOS <> "-" <> explicitVersion)
+    Nothing ->
+      if legacyFallback
+      then Vector.singleton $ display runnerOS <> "-latest"
+      else Vector.empty

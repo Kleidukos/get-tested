@@ -24,6 +24,17 @@ data ProcessingError
     (Display)
     via ShowInstance ProcessingError
 
+data RunnerOS 
+  = Ubuntu
+  | Windows 
+  | MacOS
+  deriving stock (Eq, Ord, Show)
+
+instance Display RunnerOS where
+  displayBuilder Ubuntu = "ubuntu"
+  displayBuilder Windows = "windows"
+  displayBuilder MacOS = "macos"
+
 instance ToJSON CompilerFlavor where
   toJSON = toJSON . Pretty.prettyShow
 
