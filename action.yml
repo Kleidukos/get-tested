@@ -9,17 +9,29 @@ inputs:
     description: "Version of the tool"
     required: true
   windows:
-    description: "Enable Windows runner"
+    description: "(legacy) Enable Windows runner, latest version"
     required: false
     default: false
+  windows-version: 
+    description: "Enable Windows runner. If both `windows` and `windows-version` inputs are set, the explicit version will take priority"
+    required: false
+    default: ""
   macos:
-    description: "Enable macOS runner"
+    description: "(legacy) Enable macOS runner, latest version"
     required: false
     default: false
+  macos-version: 
+    description: "Enable macOS runner.  If both `macos` and `macos-version` inputs are set, the explicit version will take priority"
+    required: false
+    default: ""
   ubuntu:
-    description: "Enable Ubuntu runner"
+    description: "(legacy) Enable Ubuntu runner, latest version"
     required: false
     default: false
+  ubuntu-version:
+    description: "Enable Ubuntu runner.  If both `ubuntu` and `ubuntu-version` inputs are set, the explicit version will take priority"
+    required: false
+    default: ""
 
 outputs:
   matrix:
@@ -34,23 +46,31 @@ runs:
     - name: Set up options
       shell: bash
       run: |
-        # Extract e.g. 0.1 from /runner/foo/bar/.../v0.1
         wget -q https://github.com/Kleidukos/get-tested/releases/download/v${{ inputs.version }}/get-tested-${{ inputs.version }}-linux-amd64 -O get-tested
         chmod +x get-tested
 
-        echo "::debug:: Windows enabled: ${{ inputs.windows }}"
-        if [[ ${{ inputs.windows}} = "true" ]]
-        then echo "WINDOWS=--windows" >> $GITHUB_ENV
+        if [[ -n ${{ inputs.windows-version}} ]]
+          echo "::debug:: Windows explicit enabled: ${{ inputs.windows-version }}"
+          then echo "WINDOWS=\"--windows-version=${{ inputs.windows-version }}\"" >> $GITHUB_ENV
+        elif [[ ${{ inputs.windows }} == "true" ]]
+          echo "::debug:: Windows fallback enabled: ${{ inputs.windows }}"
+          then echo "WINDOWS=--windows" >> $GITHUB_ENV
         fi
 
-        echo "::debug:: macOS enabled: ${{ inputs.macos }}"
-        if [[ ${{ inputs.macos}} = "true" ]]
-        then echo "MACOS=--macos" >> $GITHUB_ENV
+        if [[ ${{ -n inputs.macos-version}} ]]
+          echo "::debug:: macOS explicit version enabled: ${{ inputs.macos-version }}"
+          then echo "MACOS=\"--macos-version=${{ inputs.macos-version }}\"" >> $GITHUB_ENV
+        elif [[ ${{ inputs.macos }} == "true" ]]
+          echo "::debug:: macOS fallback enabled: ${{ inputs.macos }}"
+          then echo "MACOS=--macos" >> $GITHUB_ENV
         fi
 
-        echo "::debug:: Ubuntu enabled: ${{ inputs.ubuntu }}"
-        if [[ ${{ inputs.ubuntu}} = "true" ]]
-        then echo "UBUNTU=--ubuntu" >> $GITHUB_ENV
+        if [[ ${{ -n inputs.ubuntu-version}} ]]
+          echo "::debug:: Ubuntu explicit version enabled: ${{ inputs.ubuntu-version }}"
+          then echo "UBUNTU=\"--ubuntu-version=${{ inputs.ubuntu-version }}\"" >> $GITHUB_ENV
+        elif [[ ${{ inputs.ubuntu }} == "true" ]]
+          echo "::debug:: Ubuntu fallback enabled: ${{ inputs.ubuntu }}"
+          then echo "UBUNTU=--ubuntu" >> $GITHUB_ENV
         fi
 
     - name: Extract the tested GHC versions
