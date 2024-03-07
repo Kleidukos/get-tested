@@ -48,8 +48,8 @@ executable get-tested
 
   other-modules:
     Extract
-    Types
     Paths_get_tested
+    Types
 
   build-depends:
     , aeson                 ^>=2.1
