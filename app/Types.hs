@@ -24,9 +24,9 @@ data ProcessingError
     (Display)
     via ShowInstance ProcessingError
 
-data RunnerOS 
+data RunnerOS
   = Ubuntu
-  | Windows 
+  | Windows
   | MacOS
   deriving stock (Eq, Ord, Show)
 

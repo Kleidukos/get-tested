@@ -9,11 +9,11 @@ import Effectful.Error.Static
 import Options.Applicative
 import System.Exit
 
+import Data.Text (Text)
+import Data.Text.Display (display)
+import Data.Vector (Vector)
 import Extract
 import Types
-import Data.Text (Text)
-import Data.Vector (Vector)
-import Data.Text.Display (display)
 
 data Options = Options
   { path :: FilePath
@@ -55,7 +55,7 @@ runOptions options = do
   genericPackageDescription <- loadFile options.path
   let supportedCompilers = extractTestedWith genericPackageDescription
       filteredList =
-          processFlag MacOS options.macosFlag options.macosVersion
+        processFlag MacOS options.macosFlag options.macosVersion
           <> processFlag Ubuntu options.ubuntuFlag options.ubuntuVersion
           <> processFlag Windows options.windowsFlag options.windowsVersion
   pure $
@@ -70,16 +70,16 @@ withInfo opts desc = info (helper <*> opts) $ progDesc desc
 
 processFlag
   :: RunnerOS
-    -- ^ OS flag we're processing
+  -- ^ OS flag we're processing
   -> Bool
-    -- ^ explicit version
+  -- ^ explicit version
   -> Maybe Text
-    -- ^ legacy fallback
+  -- ^ legacy fallback
   -> Vector Text
-processFlag runnerOS legacyFallback mExplicitVersion  =
+processFlag runnerOS legacyFallback mExplicitVersion =
   case mExplicitVersion of
     Just explicitVersion -> Vector.singleton (display runnerOS <> "-" <> explicitVersion)
     Nothing ->
       if legacyFallback
-      then Vector.singleton $ display runnerOS <> "-latest"
-      else Vector.empty
+        then Vector.singleton $ display runnerOS <> "-latest"
+        else Vector.empty
