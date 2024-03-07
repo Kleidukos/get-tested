@@ -2,6 +2,8 @@ packages: ./
 
 with-compiler: ghc-9.6
 
+optimization: 2
+
 tests: True
 
 allow-newer: all
