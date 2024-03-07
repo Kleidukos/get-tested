@@ -8,12 +8,14 @@ import Effectful
 import Effectful.Error.Static
 import Options.Applicative
 import System.Exit
-
 import Data.Text (Text)
 import Data.Text.Display (display)
 import Data.Vector (Vector)
+
 import Extract
 import Types
+import Data.Version (showVersion)
+import Paths_get_tested (version)
 
 data Options = Options
   { path :: FilePath
@@ -28,7 +30,7 @@ data Options = Options
 
 main :: IO ()
 main = do
-  result <- execParser (parseOptions `withInfo` "Extract the tested-with stanza from your cabal file")
+  result <- execParser (parseOptions `withInfo` "Generate a test matrix from the tested-with stanza of your cabal file")
   processingResult <- runEff . runErrorNoCallStack $ runOptions result
   case processingResult of
     Right json -> ByteString.putStrLn json
@@ -49,6 +51,7 @@ parseOptions =
     <*> optional (strOption (long "ubuntu-version" <> metavar "VERSION" <> help "Enable the Ubuntu runner with the selected version"))
     <*> switch (long "windows" <> help "(legacy) Enable the Windows runner's latest version")
     <*> optional (strOption (long "windows-version" <> metavar "VERSION" <> help "Enable the Windows runner with the selected version"))
+    <**> simpleVersioner (showVersion version)
 
 runOptions :: Options -> Eff [Error ProcessingError, IOE] ByteString
 runOptions options = do

@@ -1,6 +1,6 @@
 cabal-version:   3.4
 name:            get-tested
-version:         0.1.6.0
+version:         0.1.7.0
 synopsis:        Get the tested-with stanza of your Cabal file
 
 -- description:
@@ -9,7 +9,7 @@ license:         BSD-3-Clause
 license-file:    LICENSE
 author:          Hécate Moonlight
 maintainer:      hecate+github@glitchbra.in
-tested-with:     GHC ==9.6.2
+tested-with:     GHC ==9.6.4
 
 -- copyright:
 category:        Development
@@ -49,6 +49,7 @@ executable get-tested
   other-modules:
     Extract
     Types
+    Paths_get_tested
 
   build-depends:
     , aeson                 ^>=2.1
