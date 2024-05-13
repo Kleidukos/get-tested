@@ -9,7 +9,7 @@ license:         BSD-3-Clause
 license-file:    LICENSE
 author:          Hécate Moonlight
 maintainer:      hecate+github@glitchbra.in
-tested-with:     GHC ==9.8.2
+tested-with:     GHC ==9.10.1
 
 -- copyright:
 category:        Development
