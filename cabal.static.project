@@ -1,6 +1,4 @@
-import: ./cabal.project
+import: ./cabal.release.project
 
-package get-tested
-  ghc-options: -static
-  ld-options: -static -pthread
-
+executable-static: true
+split-sections: True

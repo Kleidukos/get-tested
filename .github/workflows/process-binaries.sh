@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-CONFER_PATH="distribution/confer"
+GETTESTED_PATH="distribution/get-tested"
 
 case "$(uname -s)" in
         Linux*) 
-          strip $CONFER_PATH
-          upx -9 $CONFER_PATH
+          strip $GETTESTED_PATH
+          upx -9 $GETTESTED_PATH
           ;;
         Darwin*)
             echo "upx crashes on macOS Ventura and above" ;;

@@ -8,6 +8,7 @@ on:
 
 jobs:
   generate-matrix:
+    if: startsWith(github.ref, 'refs/tags/')
     name: 'Generate matrix from cabal'
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -83,7 +84,7 @@ jobs:
           path: ${{ env.GETTESTED_EXEC_TAR }}
 
   build-alpine:
-    name: 9.8.2 on alpine-3.19
+    name: 9.10.1 on alpine-3.19
     runs-on: ubuntu-latest
     container: 'alpine:3.19'
     needs: generate-matrix
@@ -102,7 +103,7 @@ jobs:
       - uses: haskell-actions/setup@v2
         id: setup-haskell
         with:
-          ghc-version: '9.8.2'
+          ghc-version: '9.10.1'
           cabal-version: 'latest'
 
       - name: Configure

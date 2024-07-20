@@ -1,0 +1,9 @@
+import: cabal.project
+
+optimization: 2
+
+documentation: False
+
+executable-stripping: True
+
+library-stripping: True
