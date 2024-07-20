@@ -10,4 +10,3 @@ case "$(uname -s)" in
         Darwin*)
             echo "upx crashes on macOS Ventura and above" ;;
 esac
-

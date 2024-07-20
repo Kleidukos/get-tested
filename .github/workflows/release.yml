@@ -90,7 +90,7 @@ jobs:
     steps:
       - name: Install extra dependencies
         shell: sh
-        run: | 
+        run: |
             apk add bash binutils-gold curl \
                 curl file g++ gcc git gmp-dev \
                 jq libc-dev libffi-dev make \
@@ -106,7 +106,7 @@ jobs:
           cabal-version: 'latest'
 
       - name: Configure
-        run: | 
+        run: |
           ARCHITECTURE=$(uname -m)
           echo "ARCH=$ARCHITECTURE" >> $GITHUB_ENV
           echo ${{ env.ARCH }}
