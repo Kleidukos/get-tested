@@ -153,14 +153,14 @@ jobs:
           name: artifact
           path: ${{ env.GETTESTED_EXEC_TAR }}
 
-  prerelease-head:
-    name: Create a GitHub prerelease with the binary artifacts
+  release:
+    name: Create a GitHub Release with the binary artifacts
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     needs: ['tests', 'build-alpine']
 
     steps:
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v3
       with:
         name: artifact
         path: ./out
