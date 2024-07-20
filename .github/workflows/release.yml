@@ -72,9 +72,9 @@ jobs:
           .github/workflows/process-binaries.sh
           DIR=$(dirname $GETTESTED_EXEC)
           FILE=$(basename $GETTESTED_EXEC)
-          version=$("${bin}" --numeric-version)
+          version=$(./distribution/get-tested --numeric-version)
           GETTESTED_EXEC_TAR=get-tested-${version}-${{ runner.os }}-${{ env.ARCH }}.tar.gz
-          tar -czvf $GETTESTED_EXEC_TAR -C $DIR $FILE
+          tar -czvf $GETTESTED_EXEC_TAR -C $DIR distribution/get-tested
           echo GETTESTED_EXEC_TAR=$GETTESTED_EXEC_TAR >> $GITHUB_ENV
       - name: Upload the get-tested executable
         uses: actions/upload-artifact@v3
@@ -136,15 +136,15 @@ jobs:
       - name: File type
         run: file distribution/get-tested
 
-      - name: Tar get-tested executable
+      - name: Package the get-tested executable
         run: |
           GETTESTED_EXEC=distribution/get-tested
           .github/workflows/process-binaries.sh
           DIR=$(dirname $GETTESTED_EXEC)
           FILE=$(basename $GETTESTED_EXEC)
-          version=$("${bin}" --numeric-version)
+          version=$(./distribution/get-tested --numeric-version)
           GETTESTED_EXEC_TAR=get-tested-${version}-${{ runner.os }}-static-${{ env.ARCH }}.tar.gz
-          tar -czvf $GETTESTED_EXEC_TAR -C $DIR $FILE
+          tar -czvf $GETTESTED_EXEC_TAR -C $DIR distribution/get-tested
           echo GETTESTED_EXEC_TAR=$GETTESTED_EXEC_TAR >> $GITHUB_ENV
 
       - name: Upload get-tested executable to workflow artifacts

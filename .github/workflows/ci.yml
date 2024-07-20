@@ -139,7 +139,6 @@ jobs:
           .github/workflows/process-binaries.sh
           DIR=$(dirname $GETTESTED_EXEC)
           FILE=$(basename $GETTESTED_EXEC)
-          version=$("${bin}" --numeric-version)
           GETTESTED_EXEC_TAR=get-tested-head-${{ runner.os }}-static-${{ env.ARCH }}.tar.gz
           tar -czvf $GETTESTED_EXEC_TAR -C $DIR $FILE
           echo GETTESTED_EXEC_TAR=$GETTESTED_EXEC_TAR >> $GITHUB_ENV
