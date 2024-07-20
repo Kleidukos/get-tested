@@ -72,7 +72,7 @@ jobs:
           .github/workflows/process-binaries.sh
           DIR=$(dirname $GETTESTED_EXEC)
           FILE=$(basename $GETTESTED_EXEC)
-          version=$(./distribution/get-tested --numeric-version)
+          version=$(./distribution/get-tested ---version)
           GETTESTED_EXEC_TAR=get-tested-${version}-${{ runner.os }}-${{ env.ARCH }}.tar.gz
           tar -czvf $GETTESTED_EXEC_TAR -C $DIR distribution/get-tested
           echo GETTESTED_EXEC_TAR=$GETTESTED_EXEC_TAR >> $GITHUB_ENV
@@ -142,7 +142,7 @@ jobs:
           .github/workflows/process-binaries.sh
           DIR=$(dirname $GETTESTED_EXEC)
           FILE=$(basename $GETTESTED_EXEC)
-          version=$(./distribution/get-tested --numeric-version)
+          version=$(./distribution/get-tested ---version)
           GETTESTED_EXEC_TAR=get-tested-${version}-${{ runner.os }}-static-${{ env.ARCH }}.tar.gz
           tar -czvf $GETTESTED_EXEC_TAR -C $DIR distribution/get-tested
           echo GETTESTED_EXEC_TAR=$GETTESTED_EXEC_TAR >> $GITHUB_ENV
