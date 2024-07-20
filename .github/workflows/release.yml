@@ -1,0 +1,173 @@
+name: Release Pipeline
+
+on:
+  push:
+    branches: ['main']
+    tags:
+      - "v*.*.*"
+
+jobs:
+  generate-matrix:
+    name: 'Generate matrix from cabal'
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract the tested GHC versions
+        id: set-matrix
+        uses: kleidukos/get-tested@v0.1.7.0
+        with:
+          cabal-file: get-tested.cabal
+          ubuntu-version: 'latest'
+          macos-version: 'latest'
+          version: 0.1.7.0
+  tests:
+    name: ${{ matrix.ghc }} on ${{ matrix.os }}
+    needs: generate-matrix
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
+    steps:
+      - name: Checkout base repo
+        uses: actions/checkout@v4
+      - name: "Install tools"
+        run: |
+            .github/workflows/install-tools.sh
+      - name: Set up Haskell
+        id: setup-haskell
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: 'latest'
+      - name: Configure
+        run: |
+          ARCHITECTURE=$(uname -m)
+          echo "ARCH=$ARCHITECTURE" >> $GITHUB_ENV
+          echo ${{ env.ARCH }}
+          cabal configure --enable-tests
+      - name: Freeze
+        run: cabal freeze --project-file=cabal.release.project
+      - name: Cache
+        uses: actions/cache@v4.0.2
+        with:
+          path: ${{ steps.setup-haskell.outputs.cabal-store }}
+          key: ${{ runner.os }}-ghc-${{ matrix.ghc }}-${{ hashFiles('**/plan.json') }}
+          restore-keys: ${{ runner.os }}-ghc-${{ matrix.ghc }}-
+
+      - name: Build
+        run: cabal build --project-file=cabal.release.project
+
+      - name: Test
+        run: cabal test --project-file=cabal.release.project all
+
+      - name: Install
+        run: cabal install --project-file=cabal.release.project --installdir=distribution --install-method=copy
+
+      - name: File type
+        run: file distribution/get-tested
+
+      - name: Package the get-tested executable
+        run: |
+          GETTESTED_EXEC=distribution/get-tested
+          .github/workflows/process-binaries.sh
+          DIR=$(dirname $GETTESTED_EXEC)
+          FILE=$(basename $GETTESTED_EXEC)
+          version=$("${bin}" --numeric-version)
+          GETTESTED_EXEC_TAR=get-tested-${version}-${{ runner.os }}-${{ env.ARCH }}.tar.gz
+          tar -czvf $GETTESTED_EXEC_TAR -C $DIR $FILE
+          echo GETTESTED_EXEC_TAR=$GETTESTED_EXEC_TAR >> $GITHUB_ENV
+      - name: Upload the get-tested executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact
+          path: ${{ env.GETTESTED_EXEC_TAR }}
+
+  build-alpine:
+    name: 9.8.2 on alpine-3.19
+    runs-on: ubuntu-latest
+    container: 'alpine:3.19'
+    needs: generate-matrix
+    steps:
+      - name: Install extra dependencies
+        shell: sh
+        run: | 
+            apk add bash binutils-gold curl \
+                curl file g++ gcc git gmp-dev \
+                jq libc-dev libffi-dev make \
+                musl-dev ncurses-dev perl pkgconfig \
+                sudo tar upx xz zlib-dev zlib-static
+
+      - uses: actions/checkout@v4
+
+      - uses: haskell-actions/setup@v2
+        id: setup-haskell
+        with:
+          ghc-version: '9.8.2'
+          cabal-version: 'latest'
+
+      - name: Configure
+        run: | 
+          ARCHITECTURE=$(uname -m)
+          echo "ARCH=$ARCHITECTURE" >> $GITHUB_ENV
+          echo ${{ env.ARCH }}
+          cabal configure --enable-tests
+
+      - name: Freeze
+        run: cabal freeze --project-file=cabal.static.project
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.setup-haskell.outputs.cabal-store }}
+          key: ${{ runner.os }}-ghc-${{ steps.setup.outputs.ghc-version }}-${{ hashFiles('**/plan.json') }}
+          restore-keys: ${{ runner.os }}-${{ steps.setup.outputs.ghc-version }}-
+
+      - name: Build
+        run: cabal build --project-file=cabal.static.project
+
+      - name: Test
+        run: cabal test --project-file=cabal.static.project all
+
+      - name: Install
+        run: |
+          bin=$(cabal -v0 --project-file=cabal.static.project list-bin get-tested)
+          mkdir distribution
+          cp ${bin} distribution/get-tested
+
+      - name: File type
+        run: file distribution/get-tested
+
+      - name: Tar get-tested executable
+        run: |
+          GETTESTED_EXEC=distribution/get-tested
+          .github/workflows/process-binaries.sh
+          DIR=$(dirname $GETTESTED_EXEC)
+          FILE=$(basename $GETTESTED_EXEC)
+          version=$("${bin}" --numeric-version)
+          GETTESTED_EXEC_TAR=get-tested-${version}-${{ runner.os }}-static-${{ env.ARCH }}.tar.gz
+          tar -czvf $GETTESTED_EXEC_TAR -C $DIR $FILE
+          echo GETTESTED_EXEC_TAR=$GETTESTED_EXEC_TAR >> $GITHUB_ENV
+
+      - name: Upload get-tested executable to workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact
+          path: ${{ env.GETTESTED_EXEC_TAR }}
+
+  prerelease-head:
+    name: Create a GitHub prerelease with the binary artifacts
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs: ['tests', 'build-alpine']
+
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: artifact
+        path: ./out
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        draft: true
+        files: ./out/*
