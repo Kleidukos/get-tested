@@ -8,7 +8,6 @@ on:
 
 jobs:
   generate-matrix:
-    if: startsWith(github.ref, 'refs/tags/')
     name: 'Generate matrix from cabal'
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
