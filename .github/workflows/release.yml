@@ -4,7 +4,7 @@ on:
   push:
     branches: ['main']
     tags:
-      - "v*.*.*"
+      - "v*"
 
 jobs:
   generate-matrix:
@@ -156,7 +156,7 @@ jobs:
   prerelease-head:
     name: Create a GitHub prerelease with the binary artifacts
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: startsWith(github.ref, 'refs/tags/v')
     needs: ['tests', 'build-alpine']
 
     steps:
