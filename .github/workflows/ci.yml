@@ -59,7 +59,10 @@ jobs:
         run: cabal test --project-file=cabal.release.project all
 
       - name: Install
-        run: cabal install --project-file=cabal.release.project --installdir=distribution --install-method=copy
+        run: |
+          bin=$(cabal -v0 --project-file=cabal.static.project list-bin get-tested)
+          mkdir distribution
+          cp ${bin} distribution/get-tested
 
       - name: File type
         run: file distribution/get-tested

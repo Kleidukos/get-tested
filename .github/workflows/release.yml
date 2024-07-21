@@ -61,7 +61,10 @@ jobs:
         run: cabal test --project-file=cabal.release.project all
 
       - name: Install
-        run: cabal install --project-file=cabal.release.project --installdir=distribution --install-method=copy
+        run: |
+          bin=$(cabal -v0 --project-file=cabal.static.project list-bin get-tested)
+          mkdir distribution
+          cp ${bin} distribution/get-tested
 
       - name: File type
         run: file distribution/get-tested
@@ -74,7 +77,7 @@ jobs:
           FILE=$(basename $GETTESTED_EXEC)
           version=$(./distribution/get-tested --version)
           GETTESTED_EXEC_TAR=get-tested-${version}-${{ runner.os }}-${{ env.ARCH }}.tar.gz
-          tar -czvf $GETTESTED_EXEC_TAR -C $DIR distribution/get-tested
+          tar -czvf $GETTESTED_EXEC_TAR -C $DIR $FILE
           echo GETTESTED_EXEC_TAR=$GETTESTED_EXEC_TAR >> $GITHUB_ENV
       - name: Upload the get-tested executable
         uses: actions/upload-artifact@v3
@@ -144,7 +147,7 @@ jobs:
           FILE=$(basename $GETTESTED_EXEC)
           version=$(./distribution/get-tested --version)
           GETTESTED_EXEC_TAR=get-tested-${version}-${{ runner.os }}-static-${{ env.ARCH }}.tar.gz
-          tar -czvf $GETTESTED_EXEC_TAR -C $DIR distribution/get-tested
+          tar -czvf $GETTESTED_EXEC_TAR -C $DIR $FILE
           echo GETTESTED_EXEC_TAR=$GETTESTED_EXEC_TAR >> $GITHUB_ENV
 
       - name: Upload get-tested executable to workflow artifacts
