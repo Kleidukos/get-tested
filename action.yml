@@ -46,7 +46,8 @@ runs:
     - name: Set up options
       shell: bash
       run: |
-        wget -q https://github.com/Kleidukos/get-tested/releases/download/v${{ inputs.version }}/get-tested-${{ inputs.version }}-linux-amd64 -O get-tested
+        wget -q https://github.com/Kleidukos/get-tested/releases/download/v${{ inputs.version }}/get-tested-${{ inputs.version}}-Linux-static-x86_64.tar.gz
+        tar -xzvf get-tested-${{ inputs.version}}-Linux-static-x86_64.tar.gz
         chmod +x get-tested
 
         echo "::debug:: macOS: ${{ inputs.macos-version }}"
