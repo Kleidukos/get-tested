@@ -34,6 +34,7 @@ runs:
         else
           gh release download "${gh_release_flags[@]}"
         fi
+        mkdir -p "${{ inputs.directory }}"
         tar -x -v -z -f get-tested.tar.gz -C "${{ inputs.directory }}"
 
         path="${{ inputs.directory }}/get-tested"
