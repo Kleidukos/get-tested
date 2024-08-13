@@ -7,8 +7,10 @@ A CLI tool that retrieves the `tested-with` stanza of a cabal file and formats i
 The inputs of the action (under the `with:` stanza) are the following:
 
 *  cabal-file:
-    The path to your cabal file, e.g. somefolder/myproject.cabal. required;
-*  version: Version of the tool. required;
+   The path to your cabal file, e.g. somefolder/myproject.cabal. required;
+*  version:
+   The version of the get-tested tool that is used.
+   Defaults to the latest one.
 *  windows: (legacy) Enable Windows runner, latest version. required: false, default: false;
 *  windows-version: Enable Windows runner. If both `windows` and `windows-version` inputs are set, the explicit version will take priority. required: false, default: "";
 *  macos: (legacy) Enable macOS runner, latest version. required: false, default: false;
@@ -22,7 +24,7 @@ See below for an example:
 jobs:
   generate-matrix:
     name: "Generate matrix from cabal"
-    outputs: 
+    outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     runs-on: ubuntu-latest
     steps:
