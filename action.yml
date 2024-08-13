@@ -6,29 +6,32 @@ inputs:
     description: "The path to your cabal file, e.g. somefolder/myproject.cabal"
     required: true
   version:
-    description: "Version of the tool"
+    description: "Version of the get-tested tool"
     required: false
     default: ""
   windows:
-    description: "(legacy) Enable Windows runner, latest version"
+    description: "Enable Windows runner, latest version"
     required: false
     default: false
+    deprecationMessage: "Please use 'windows-version: latest' instead."
   windows-version:
     description: "Enable Windows runner. If both `windows` and `windows-version` inputs are set, the explicit version will take priority"
     required: false
     default: ""
   macos:
-    description: "(legacy) Enable macOS runner, latest version"
+    description: "Enable macOS runner, latest version"
     required: false
     default: false
+    deprecationMessage: "Please use 'macos-version: latest' instead."
   macos-version:
     description: "Enable macOS runner.  If both `macos` and `macos-version` inputs are set, the explicit version will take priority"
     required: false
     default: ""
   ubuntu:
-    description: "(legacy) Enable Ubuntu runner, latest version"
+    description: "Enable Ubuntu runner, latest version"
     required: false
     default: false
+    deprecationMessage: "Please use 'ubuntu-version: latest' instead."
   ubuntu-version:
     description: "Enable Ubuntu runner.  If both `ubuntu` and `ubuntu-version` inputs are set, the explicit version will take priority"
     required: false
