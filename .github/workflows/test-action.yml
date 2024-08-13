@@ -1,0 +1,57 @@
+name: Test actions pipeline
+
+on:
+  pull_request:
+    branches: ['main']
+
+  push:
+    branches: ['main']
+
+jobs:
+  test-action:
+    name: 'Test get-tested action'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract the tested GHC versions
+        id: create-matrix
+        uses: ./
+        with:
+          cabal-file: get-tested.cabal
+          ubuntu-version: 'latest'
+          macos-version: 'latest'
+
+      - name: Output matrix
+        run: |
+          jq '.' <<< "${{ steps.create-matrix.matrix }}"
+
+  test-setup-action:
+    name: 'Test setup-get-tested action'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up without options
+        id: setup
+        uses: ./setup-get-tested
+
+      - name: Set up with explicit directory
+        id: setup-with-directory
+        uses: ./setup-get-tested
+        with:
+          directory: "my-bin-dir"
+
+      - name: Output results
+        run: |
+          echo "${{ steps.setup.path }}"
+          if [[ -x "${{ steps.setup.path }}" ]]; then
+            echo "Is executable"
+          else
+            echo "Is NOT executable"
+            exit 1
+          fi
+
+          echo "${{ steps.setup-with-directory.path }}"
+          if [[ -x "${{ steps.setup-with-directory.path }}" ]]; then
+            echo "Is executable"
+          else
+            echo "Is NOT executable"
+            exit 1
+          fi
