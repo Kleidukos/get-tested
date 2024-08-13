@@ -25,10 +25,13 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
+        tmpdir="$(mktemp --directory "${RUNNER_TEMP}/setup-get-tested.XXX")"
+        trap "rm -rf ${tmpdir}" EXIT
+
         gh_release_flags=(
           --repo Kleidukos/get-tested
           --pattern 'get-tested-*-Linux-static-x86_64.tar.gz'
-          --output get-tested.tar.gz
+          --output "${tmpdir}/get-tested.tar.gz"
           )
 
         if [[ "${{ inputs.version }}" != "" ]]; then
@@ -37,7 +40,7 @@ runs:
           gh release download "${gh_release_flags[@]}"
         fi
         mkdir -p "${{ inputs.directory }}"
-        tar -x -v -z -f get-tested.tar.gz -C "${{ inputs.directory }}"
+        tar -x -v -z -f "${tmpdir}/get-tested.tar.gz" -C "${{ inputs.directory }}"
 
         path="${{ inputs.directory }}/get-tested"
         chmod a+x "${path}"
