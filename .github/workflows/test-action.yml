@@ -12,6 +12,9 @@ jobs:
     name: 'Test get-tested action'
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
       - name: Extract the tested GHC versions
         id: create-matrix
         uses: ./
@@ -28,6 +31,9 @@ jobs:
     name: 'Test setup-get-tested action'
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
       - name: Set up without options
         id: setup
         uses: ./setup-get-tested
