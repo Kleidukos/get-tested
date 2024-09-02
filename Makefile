@@ -11,10 +11,10 @@ test: ## Run the test suite
 	@cabal test
 
 lint: ## Run the code linter (HLint)
-	@find app -name "*.hs" | xargs -P $(PROCS) -I {} hlint --refactor-options="-i" --refactor {}
+	@find app src test -name "*.hs" | xargs -P $(PROCS) -I {} hlint --refactor-options="-i" --refactor {}
 
-style: ## Run the code styler (stylish-haskell)
-	@fourmolu -q --mode inplace app
+style: ## Run the code styler (fourmolu)
+	@fourmolu -q --mode inplace app src test
 	@cabal-fmt -i *.cabal
 
 help: ## Display this help message

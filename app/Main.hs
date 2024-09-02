@@ -1,44 +1,48 @@
 module Main where
 
+import Control.Monad (when)
 import Data.Aeson qualified as Aeson
 import Data.ByteString.Lazy (ByteString)
 import Data.ByteString.Lazy.Char8 qualified as ByteString
+import Data.Function ((&))
 import Data.Text (Text)
+import Data.Text qualified as Text
 import Data.Text.Display (display)
 import Data.Vector (Vector)
 import Data.Vector qualified as Vector
+import Data.Version (showVersion)
 import Effectful
+import Effectful.Console.ByteString (Console)
+import Effectful.Console.ByteString qualified as Console
 import Effectful.Error.Static
-import Options.Applicative
+import Effectful.Error.Static qualified as Error
+import Effectful.FileSystem (FileSystem)
+import Effectful.FileSystem qualified as FileSystem
+import Options.Applicative hiding (action)
 import System.Exit
 
-import Data.Version (showVersion)
-import Extract
+import GetTested.CLI.Types
+import GetTested.Extract
+import GetTested.Types
 import Paths_get_tested (version)
-import Types
-
-data Options = Options
-  { path :: FilePath
-  , macosFlag :: Bool
-  , macosVersion :: Maybe Text
-  , ubuntuFlag :: Bool
-  , ubuntuVersion :: Maybe Text
-  , windowsFlag :: Bool
-  , windowsVersion :: Maybe Text
-  }
-  deriving stock (Show, Eq)
 
 main :: IO ()
 main = do
   result <- execParser (parseOptions `withInfo` "Generate a test matrix from the tested-with stanza of your cabal file")
-  processingResult <- runEff . runErrorNoCallStack $ runOptions result
+  processingResult <- runCLIEff $ runOptions result
   case processingResult of
-    Right json -> ByteString.putStrLn json
+    Right json -> putStrLn $ ByteString.unpack json
     Left (CabalFileNotFound path) -> do
-      putStrLn $ "Could not find cabal file at path " <> path
+      putStrLn $ "get-tested: Could not find cabal file at path " <> path
       exitFailure
     Left (CabalFileCouldNotBeParsed path) -> do
-      putStrLn $ "Could not parse cabal file at path " <> path
+      putStrLn $ "get-tested: Could not parse cabal file at path " <> path
+      exitFailure
+    Left (NoCompilerVersionsFound path) -> do
+      putStrLn $ "get-tested: No compilers found in" <> path
+      exitFailure
+    Left (IncompatibleOptions opt1 opt2) -> do
+      putStrLn $ Text.unpack $ "get-tested: Incompatible options: " <> opt1 <> " and " <> opt2 <> " cannot be passed simultaneously."
       exitFailure
 
 parseOptions :: Parser Options
@@ -51,38 +55,63 @@ parseOptions =
     <*> optional (strOption (long "ubuntu-version" <> metavar "VERSION" <> help "Enable the Ubuntu runner with the selected version"))
     <*> switch (long "windows" <> help "(legacy) Enable the Windows runner's latest version")
     <*> optional (strOption (long "windows-version" <> metavar "VERSION" <> help "Enable the Windows runner with the selected version"))
+    <*> switch (long "newest" <> help "Enable only the newest GHC version found in the cabal file. Can be combined with --oldest")
+    <*> switch (long "oldest" <> help "Enable only the oldest GHC version found in the cabal file. Can be combined with --newest")
       <**> simpleVersioner (showVersion version)
 
-runOptions :: Options -> Eff [Error ProcessingError, IOE] ByteString
+runOptions :: Options -> Eff [Console, FileSystem, Error ProcessingError, IOE] ByteString
 runOptions options = do
+  checkIncompatibleRelativeOptions options
   genericPackageDescription <- loadFile options.path
-  let supportedCompilers = extractTestedWith genericPackageDescription
-      filteredList =
-        processFlag MacOS options.macosFlag options.macosVersion
-          <> processFlag Ubuntu options.ubuntuFlag options.ubuntuVersion
-          <> processFlag Windows options.windowsFlag options.windowsVersion
-  pure $
-    if null filteredList
-      then Aeson.encode supportedCompilers
-      else do
-        let include = PlatformAndVersion <$> filteredList <*> supportedCompilers
-        "matrix=" <> Aeson.encode (ActionMatrix include)
+  selectedCompilers <-
+    filterCompilers options
+      <$> extractTestedWith options.path genericPackageDescription
+  let filteredList =
+        processOSFlag MacOS options.macosFlag options.macosVersion
+          <> processOSFlag Ubuntu options.ubuntuFlag options.ubuntuVersion
+          <> processOSFlag Windows options.windowsFlag options.windowsVersion
+  if null filteredList
+    then pure $ Aeson.encode selectedCompilers
+    else do
+      let include = PlatformAndVersion <$> filteredList <*> selectedCompilers
+      pure $ "matrix=" <> Aeson.encode (ActionMatrix include)
 
 withInfo :: Parser a -> String -> ParserInfo a
 withInfo opts desc = info (helper <*> opts) $ progDesc desc
 
-processFlag
+processOSFlag
   :: RunnerOS
   -- ^ OS flag we're processing
   -> Bool
-  -- ^ explicit version
-  -> Maybe Text
   -- ^ legacy fallback
+  -> Maybe Text
+  -- ^ explicit version
   -> Vector Text
-processFlag runnerOS legacyFallback mExplicitVersion =
+processOSFlag runnerOS legacyFallback mExplicitVersion =
   case mExplicitVersion of
     Just explicitVersion -> Vector.singleton (display runnerOS <> "-" <> explicitVersion)
     Nothing ->
       if legacyFallback
         then Vector.singleton $ display runnerOS <> "-latest"
         else Vector.empty
+
+checkIncompatibleRelativeOptions
+  :: (Error ProcessingError :> es)
+  => Options
+  -> Eff es ()
+checkIncompatibleRelativeOptions options = do
+  when (options.newest && options.oldest) $
+    throwError $
+      IncompatibleOptions
+        "--newest"
+        "--oldest"
+
+runCLIEff
+  :: Eff [Console, FileSystem, Error ProcessingError, IOE] a
+  -> IO (Either ProcessingError a)
+runCLIEff action = do
+  action
+    & Console.runConsole
+    & FileSystem.runFileSystem
+    & Error.runErrorNoCallStack
+    & runEff

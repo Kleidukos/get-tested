@@ -7,7 +7,7 @@ synopsis:        Get the tested-with stanza of your Cabal file
 homepage:        https://github.com/Kleidukos/get-tested
 license:         BSD-3-Clause
 license-file:    LICENSE
-author:          Hécate Moonlight
+author:          Hécate Kleidukos
 maintainer:      hecate+github@glitchbra.in
 tested-with:     GHC ==9.10.1
 
@@ -16,8 +16,24 @@ category:        Development
 build-type:      Simple
 extra-doc-files: CHANGELOG.md
 
-executable get-tested
-  main-is:            Main.hs
+common extensions
+  default-extensions:
+    DataKinds
+    DeriveAnyClass
+    DerivingVia
+    DuplicateRecordFields
+    LambdaCase
+    NoStarIsType
+    OverloadedRecordDot
+    OverloadedStrings
+    PackageImports
+    RecordWildCards
+    StrictData
+    TypeFamilies
+
+  default-language:   GHC2024
+
+common ghc-options
   ghc-options:
     -Wall -Wcompat -Widentities -Wincomplete-record-updates
     -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints
@@ -25,43 +41,72 @@ executable get-tested
     -fprint-potential-instances -Wno-unticked-promoted-constructors
     -Werror=unused-imports -flate-specialise -funbox-strict-fields
     -finline-generics-aggressively -fexpose-all-unfoldings -threaded
-    "-with-rtsopts=-N -T" -Wunused-packages
+    -Wunused-packages
 
-  default-extensions:
-    DataKinds
-    DeriveAnyClass
-    DerivingStrategies
-    DerivingVia
-    DuplicateRecordFields
-    LambdaCase
-    NoStarIsType
-    OverloadedLabels
-    OverloadedRecordDot
-    OverloadedStrings
-    PackageImports
-    PolyKinds
-    QuasiQuotes
-    RecordWildCards
-    StrictData
-    TypeFamilies
-    ViewPatterns
+common rts-options
+  ghc-options: -rtsopts -threaded "-with-rtsopts=-N -T"
 
-  other-modules:
-    Extract
-    Paths_get_tested
-    Types
+library
+  import:          extensions
+  import:          ghc-options
+  hs-source-dirs:  src
 
+  -- cabal-fmt: expand src/
+  exposed-modules:
+    GetTested.CLI.Types
+    GetTested.Extract
+    GetTested.Types
+
+  build-depends:
+    , aeson            ^>=2.2
+    , base             ^>=4.19
+    , bytestring       ^>=0.11
+    , Cabal-syntax     ^>=3.10.3
+    , effectful        ^>=2.3
+    , effectful-core   ^>=2.3
+    , nonempty-vector  ^>=0.2.3
+    , text             ^>=2.1
+    , text-display     ^>=0.0.1
+    , vector           ^>=0.13
+
+executable get-tested
+  import:         extensions
+  import:         ghc-options
+  import:         rts-options
+  main-is:        Main.hs
+  other-modules:  Paths_get_tested
   build-depends:
     , aeson                 ^>=2.2
     , base                  ^>=4.19
     , bytestring            ^>=0.11
-    , Cabal-syntax          ^>=3.10.3
-    , directory             ^>=1.3
+    , effectful             ^>=2.3
     , effectful-core        ^>=2.3
+    , get-tested
     , optparse-applicative  ^>=0.18
     , text                  ^>=2.1
     , text-display          ^>=0.0.1
     , vector                ^>=0.13
 
-  hs-source-dirs:     app
-  default-language:   GHC2021
+  hs-source-dirs: app
+
+test-suite get-tested-test
+  import:         extensions
+  import:         ghc-options
+  import:         rts-options
+  type:           exitcode-stdio-1.0
+  hs-source-dirs: test
+  main-is:        Main.hs
+  other-modules:
+    ExtractTest
+    Utils
+
+  build-depends:
+    , base
+    , Cabal-syntax
+    , effectful
+    , effectful-core
+    , get-tested
+    , tasty
+    , tasty-hunit
+    , tasty-test-reporter
+    , vector

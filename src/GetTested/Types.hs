@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wno-orphans #-}
 
-module Types where
+module GetTested.Types where
 
 import Data.Aeson
 import Data.Text (Text)
@@ -19,6 +19,8 @@ import GHC.Generics (Generic)
 data ProcessingError
   = CabalFileNotFound FilePath
   | CabalFileCouldNotBeParsed FilePath
+  | NoCompilerVersionsFound FilePath
+  | IncompatibleOptions Text Text
   deriving stock (Eq, Ord, Show)
   deriving
     (Display)

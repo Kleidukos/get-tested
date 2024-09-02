@@ -1,0 +1,9 @@
+cabal-version:   3.4
+name:            one
+version:         0.1.0.0
+license:         BSD-3-Clause
+license-file:    LICENSE
+author:          Hécate Kleidukos
+maintainer:      hecate+github@glitchbra.in
+tested-with:     GHC ==9.10.1 || ==8.10.7 || ==9.6.6
+
