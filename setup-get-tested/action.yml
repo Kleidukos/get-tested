@@ -1,0 +1,51 @@
+name: "Set up get-tested"
+description: "Fetches the get-tested tool"
+
+inputs:
+  version:
+    description: "The version of the get-tested tool. Defaults to 'latest' if unspecified."
+    required: false
+    default: ""
+  directory:
+    description: "The directory where the get-tested executable should be placed."
+    required: false
+    default: "."
+
+outputs:
+  path:
+    description: "The path to the get-tested executable."
+    value: ${{ steps.setup.outputs.path }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up get-tested
+      id: setup
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        tmpdir="$(mktemp --directory "${RUNNER_TEMP}/setup-get-tested.XXX")"
+        trap "rm -rf ${tmpdir}" EXIT
+
+        gh_release_flags=(
+          --repo Kleidukos/get-tested
+          --pattern 'get-tested-*-Linux-static-x86_64.tar.gz'
+          --output "${tmpdir}/get-tested.tar.gz"
+          )
+
+        if [[ "${{ inputs.version }}" != "" ]]; then
+          gh release download "v${{ inputs.version }}" "${gh_release_flags[@]}"
+        else
+          gh release download "${gh_release_flags[@]}"
+        fi
+        mkdir -p "${{ inputs.directory }}"
+        tar -x -v -z -f "${tmpdir}/get-tested.tar.gz" -C "${{ inputs.directory }}"
+
+        path="${{ inputs.directory }}/get-tested"
+        chmod a+x "${path}"
+        echo "path=${path}" >> "${GITHUB_OUTPUT}"
+
+branding:
+  icon: 'list'
+  color: 'blue'

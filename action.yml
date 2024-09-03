@@ -47,23 +47,15 @@ runs:
   steps:
     - name: Checkout base repo
       uses: actions/checkout@v4
+
+    - name: Set up get-tested
+      uses: ./setup-get-tested
+      with:
+        version: ${{ inputs.version }}
+
     - name: Set up options
       shell: bash
       run: |
-        gh_release_flags=(
-          --repo Kleidukos/get-tested
-          --pattern 'get-tested-*-Linux-static-x86_64.tar.gz'
-          --output get-tested.tar.gz
-          )
-        if [[ "${{ inputs.version }}" != "" ]]
-        then
-          gh release download "v${{ inputs.version }}" "${gh_release_flags[@]}"
-        else
-          gh release download "${gh_release_flags[@]}"
-        fi
-        tar -xzvf get-tested.tar.gz
-        chmod +x get-tested
-
         echo "::debug:: macOS: ${{ inputs.macos-version }}"
         echo "::debug:: windows: ${{ inputs.windows-version }}"
         echo "::debug:: ubuntu: ${{ inputs.ubuntu-version }}"
