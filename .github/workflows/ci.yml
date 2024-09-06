@@ -8,7 +8,7 @@ on:
 jobs:
   generate-matrix:
     name: "Generate matrix from cabal"
-    outputs: 
+    outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     runs-on: ubuntu-latest
     steps:
@@ -48,7 +48,6 @@ jobs:
           echo "ARCH=$ARCHITECTURE" >> $GITHUB_ENV
           echo "REPORT_NAME=report-${{ matrix.os }}-ghc-${{ matrix.ghc }}.xml" >> $GITHUB_ENV
           echo ${{ env.ARCH }}
-          cabal configure --enable-tests
 
       - name: Freeze
         run: cabal freeze --project-file=cabal.release.project
@@ -70,7 +69,7 @@ jobs:
       - name: Upload the test report
         uses: actions/upload-artifact@v4
         if: success() || failure() # always run even if the previous step fails
-        with: 
+        with:
           name: ${{ env.REPORT_NAME }}
           path: ${{ env.REPORT_NAME }}
 
@@ -152,7 +151,7 @@ jobs:
       - name: Upload the test report
         uses: actions/upload-artifact@v4
         if: success() || failure() # always run even if the previous step fails
-        with: 
+        with:
           name: ${{ env.REPORT_NAME }}
           path: ${{ env.REPORT_NAME }}
 
