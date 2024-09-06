@@ -48,7 +48,7 @@ jobs:
         run: |
           ARCHITECTURE=$(uname -m)
           echo "ARCH=$ARCHITECTURE" >> $GITHUB_ENV
-          echo "REPORT_NAME=report-${{ matrix.os }}-ghc-${{ matrix.ghc }}.xml" >> $GITHUB_ENV
+          echo "REPORT_NAME=report-${{ matrix.os }}-ghc-$(uname -m).xml" >> $GITHUB_ENV
           echo ${{ env.ARCH }}
 
       - name: Freeze
@@ -81,6 +81,11 @@ jobs:
           mkdir distribution
           cp ${bin} distribution/get-tested
 
+      - id: version
+        run: |
+          version=$(./distribution/get-tested --version)
+          echo "VERSION=${version}" >> "$GITHUB_ENV"
+
       - name: Post-process executables
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
@@ -90,7 +95,7 @@ jobs:
       - name: Package the get-tested executable
         run: |
           GETTESTED_EXEC=distribution/get-tested
-          ARTIFACT_NAME="get-tested-head-${{ matrix.os }}-static-${{ env.ARCH }}-${{ matrix.ghc }}"
+          ARTIFACT_NAME="get-tested-${{ env.VERSION }}-${{ runner.os }}-${{ env.ARCH }}"
           echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
           ARCHIVE=${ARTIFACT_NAME}.tar.gz
           DIR=$(dirname $GETTESTED_EXEC)
@@ -104,10 +109,14 @@ jobs:
           path: ${{ env.ARTIFACT_NAME }}.tar.gz
 
   build-alpine:
+    env:
+      os: alpine-3.20
     name: 9.10.1 on alpine-3.20
     runs-on: ubuntu-latest
     container: 'alpine:3.20'
     needs: generate-matrix
+    outputs:
+      version: ${{ steps.version.output.version }}
     steps:
       - name: Install extra dependencies
         shell: sh
@@ -130,7 +139,7 @@ jobs:
         run: |
           ARCHITECTURE=$(uname -m)
           echo "ARCH=$ARCHITECTURE" >> $GITHUB_ENV
-          echo "REPORT_NAME=report-alpine-ghc-9.10.1.xml" >> $GITHUB_ENV
+          echo "REPORT_NAME=report-alpine-3.20-ghc-$(uname -m).xml" >> $GITHUB_ENV
           echo ${{ env.ARCH }}
 
       - name: Freeze
@@ -139,9 +148,9 @@ jobs:
       - name: Cache
         uses: actions/cache@v4
         with:
-          key: alpine-3.20-ghc-${{ matrix.ghc }}-${{ hashFiles('**/plan.json') }}
+          key: $os-ghc-${{ matrix.ghc }}-${{ hashFiles('**/plan.json') }}
           path: ${{ steps.setup-haskell.outputs.cabal-store }}
-          restore-keys: alpine-3.20-ghc-${{ matrix.ghc }}-
+          restore-keys: $os-ghc-${{ matrix.ghc }}-
 
       - name: Build
         run: cabal build --project-file=cabal.static.project
@@ -163,6 +172,12 @@ jobs:
           mkdir distribution
           cp ${bin} distribution/get-tested
 
+      - id: version
+        run: |
+          version=$(./distribution/get-tested --version)
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "VERSION=${version}" >> "$GITHUB_ENV"
+
       - name: File type
         run: file distribution/get-tested
 
@@ -174,7 +189,7 @@ jobs:
       - name: Package the get-tested executable
         run: |
           GETTESTED_EXEC=distribution/get-tested
-          ARTIFACT_NAME="get-tested-head-alpine-3.20-static-${{ env.ARCH }}-ghc-9.10.1"
+          ARTIFACT_NAME="get-tested-${{ env.VERSION }}-${{ runner.os }}-static-${{ env.ARCH }}"
           echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
           ARCHIVE=${ARTIFACT_NAME}.tar.gz
           DIR=$(dirname $GETTESTED_EXEC)
@@ -186,6 +201,7 @@ jobs:
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.ARTIFACT_NAME }}.tar.gz
+
   collect-test-results:
     name: Collect test results
     runs-on: ubuntu-latest
@@ -221,13 +237,16 @@ jobs:
     steps:
     - uses: actions/download-artifact@v4
       with:
-        pattern: artifact-*
+        pattern: get-tested-*
         merge-multiple: true
         path: ./out
 
-    - name: Pre-release
+    - name: Release
       uses: softprops/action-gh-release@v2
       with:
-        prerelease: true
+        draft: true
         files: ./out/*
-        tag_name: get-tested-head
+        name: ${{ env.version }}
+        fail_on_unmatched_files: true
+      env:
+        version: ${{ needs.build-alpine.outputs.version }}
