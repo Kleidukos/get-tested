@@ -55,8 +55,8 @@ parseOptions =
     <*> optional (strOption (long "ubuntu-version" <> metavar "VERSION" <> help "Enable the Ubuntu runner with the selected version"))
     <*> switch (long "windows" <> help "(legacy) Enable the Windows runner's latest version")
     <*> optional (strOption (long "windows-version" <> metavar "VERSION" <> help "Enable the Windows runner with the selected version"))
-    <*> switch (long "newest" <> help "Enable only the newest GHC version found in the cabal file. Can be combined with --oldest")
-    <*> switch (long "oldest" <> help "Enable only the oldest GHC version found in the cabal file. Can be combined with --newest")
+    <*> switch (long "newest" <> help "Enable only the newest GHC version found in the cabal file")
+    <*> switch (long "oldest" <> help "Enable only the oldest GHC version found in the cabal file")
       <**> simpleVersioner (showVersion version)
 
 runOptions :: Options -> Eff [Console, FileSystem, Error ProcessingError, IOE] ByteString
