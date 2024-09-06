@@ -57,6 +57,18 @@ The inputs of the action (under the `with:` stanza) are the following:
    _Required:_ false \
    _Default:_ Not set
 
+*  `newest:` \
+   Enable only the newest GHC version found in the cabal file
+   \
+   _Required:_ false \
+   _Default:_ false
+
+*  `oldest:` \
+   Enable only the oldest GHC version found in the cabal file
+   \
+   _Required:_ false \
+   _Default:_ false
+
 See below for an example:
 
 ```yaml
@@ -73,7 +85,7 @@ jobs:
         with:
           cabal-file: get-tested.cabal
           ubuntu-version: "latest"
-          macos-version: "13"
+          macos-version: "latest"
           version: 0.1.7.1
   tests:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
