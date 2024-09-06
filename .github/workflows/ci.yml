@@ -18,6 +18,7 @@ jobs:
         with:
           cabal-file: get-tested.cabal
           ubuntu-version: latest
+          macos-version: 'latest'
           version: 0.1.7.0
   build:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
@@ -130,16 +131,16 @@ jobs:
           echo "ARCH=$ARCHITECTURE" >> $GITHUB_ENV
           echo "REPORT_NAME=report-alpine-ghc-9.10.1.xml" >> $GITHUB_ENV
           echo ${{ env.ARCH }}
-          cabal configure --enable-tests
 
       - name: Freeze
         run: cabal freeze --project-file=cabal.static.project
 
-      - uses: actions/cache@v4
+      - name: Cache
+        uses: actions/cache@v4
         with:
+          key: ${{ runner.os }}-ghc-${{ matrix.ghc }}-${{ hashFiles('**/plan.json') }}
           path: ${{ steps.setup-haskell.outputs.cabal-store }}
-          key: ${{ runner.os }}-ghc-${{ steps.setup.outputs.ghc-version }}-${{ hashFiles('**/plan.json') }}
-          restore-keys: ${{ runner.os }}-${{ steps.setup.outputs.ghc-version }}-
+          restore-keys: ${{ runner.os }}-ghc-${{ matrix.ghc }}-
 
       - name: Build
         run: cabal build --project-file=cabal.static.project
@@ -206,7 +207,7 @@ jobs:
           junitparser merge --glob *.xml final-report.xml
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v3
+        uses: mikepenz/action-junit-report@v4
         with:
           commit: ${{github.event.workflow_run.head_sha}}
           report_paths: 'final-report.xml'

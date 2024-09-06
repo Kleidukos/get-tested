@@ -21,74 +21,92 @@ jobs:
           ubuntu-version: 'latest'
           macos-version: 'latest'
           version: 0.1.7.0
-  tests:
+  build:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
     needs: generate-matrix
     runs-on: ${{ matrix.os }}
     strategy:
       matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
     steps:
+
+      - name: "Install tools"
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          sudo apt install upx-ucl
+
       - name: Checkout base repo
         uses: actions/checkout@v4
-      - name: "Install tools"
-        run: |
-            .github/workflows/install-tools.sh
+
       - name: Set up Haskell
         id: setup-haskell
         uses: haskell-actions/setup@v2
         with:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: 'latest'
+
       - name: Configure
         run: |
           ARCHITECTURE=$(uname -m)
           echo "ARCH=$ARCHITECTURE" >> $GITHUB_ENV
+          echo "REPORT_NAME=report-${{ matrix.os }}-ghc-${{ matrix.ghc }}.xml" >> $GITHUB_ENV
           echo ${{ env.ARCH }}
-          cabal configure --enable-tests
+
       - name: Freeze
         run: cabal freeze --project-file=cabal.release.project
+
       - name: Cache
-        uses: actions/cache@v4.0.2
+        uses: actions/cache@v4
         with:
-          path: ${{ steps.setup-haskell.outputs.cabal-store }}
           key: ${{ runner.os }}-ghc-${{ matrix.ghc }}-${{ hashFiles('**/plan.json') }}
+          path: ${{ steps.setup-haskell.outputs.cabal-store }}
           restore-keys: ${{ runner.os }}-ghc-${{ matrix.ghc }}-
 
       - name: Build
         run: cabal build --project-file=cabal.release.project
 
       - name: Test
-        run: cabal test --project-file=cabal.release.project all
+        run: |
+          cabal test --project-file=cabal.release.project --test-options "--xml=../get-tested/${{ env.REPORT_NAME }}" all
+
+      - name: Upload the test report
+        uses: actions/upload-artifact@v4
+        if: success() || failure() # always run even if the previous step fails
+        with:
+          name: ${{ env.REPORT_NAME }}
+          path: ${{ env.REPORT_NAME }}
 
       - name: Install
         run: |
-          bin=$(cabal -v0 --project-file=cabal.static.project list-bin get-tested)
+          bin=$(cabal -v0 --project-file=cabal.release.project list-bin get-tested)
           mkdir distribution
           cp ${bin} distribution/get-tested
 
-      - name: File type
-        run: file distribution/get-tested
+      - name: Post-process executables
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+            strip distribution/get-tested
+            upx -9 distribution/get-tested
 
       - name: Package the get-tested executable
         run: |
           GETTESTED_EXEC=distribution/get-tested
-          .github/workflows/process-binaries.sh
+          ARTIFACT_NAME="get-tested-head-${{ matrix.os }}-static-${{ env.ARCH }}-${{ matrix.ghc }}"
+          echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
+          ARCHIVE=${ARTIFACT_NAME}.tar.gz
           DIR=$(dirname $GETTESTED_EXEC)
           FILE=$(basename $GETTESTED_EXEC)
-          version=$(./distribution/get-tested --version)
-          GETTESTED_EXEC_TAR=get-tested-${version}-${{ runner.os }}-${{ env.ARCH }}.tar.gz
-          tar -czvf $GETTESTED_EXEC_TAR -C $DIR $FILE
-          echo GETTESTED_EXEC_TAR=$GETTESTED_EXEC_TAR >> $GITHUB_ENV
+          tar -czvf ${ARCHIVE} -C $DIR $FILE
+
       - name: Upload the get-tested executable
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: artifact
-          path: ${{ env.GETTESTED_EXEC_TAR }}
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.ARTIFACT_NAME }}.tar.gz
 
   build-alpine:
-    name: 9.10.1 on alpine-3.19
+    name: 9.10.1 on alpine-3.20
     runs-on: ubuntu-latest
-    container: 'alpine:3.19'
+    container: 'alpine:3.20'
     needs: generate-matrix
     steps:
       - name: Install extra dependencies
@@ -112,23 +130,32 @@ jobs:
         run: |
           ARCHITECTURE=$(uname -m)
           echo "ARCH=$ARCHITECTURE" >> $GITHUB_ENV
+          echo "REPORT_NAME=report-alpine-ghc-9.10.1.xml" >> $GITHUB_ENV
           echo ${{ env.ARCH }}
-          cabal configure --enable-tests
 
       - name: Freeze
         run: cabal freeze --project-file=cabal.static.project
 
-      - uses: actions/cache@v4
+      - name: Cache
+        uses: actions/cache@v4
         with:
+          key: alpine-3.20-ghc-${{ matrix.ghc }}-${{ hashFiles('**/plan.json') }}
           path: ${{ steps.setup-haskell.outputs.cabal-store }}
-          key: ${{ runner.os }}-ghc-${{ steps.setup.outputs.ghc-version }}-${{ hashFiles('**/plan.json') }}
-          restore-keys: ${{ runner.os }}-${{ steps.setup.outputs.ghc-version }}-
+          restore-keys: alpine-3.20-ghc-${{ matrix.ghc }}-
 
       - name: Build
         run: cabal build --project-file=cabal.static.project
 
       - name: Test
-        run: cabal test --project-file=cabal.static.project all
+        run: |
+          cabal test --project-file=cabal.static.project --test-options "--xml=../get-tested/${{ env.REPORT_NAME }}" all
+
+      - name: Upload the test report
+        uses: actions/upload-artifact@v4
+        if: success() || failure() # always run even if the previous step fails
+        with:
+          name: ${{ env.REPORT_NAME }}
+          path: ${{ env.REPORT_NAME }}
 
       - name: Install
         run: |
@@ -139,38 +166,68 @@ jobs:
       - name: File type
         run: file distribution/get-tested
 
+      - name: Post-process executables
+        run: |
+            strip distribution/get-tested
+            upx -9 distribution/get-tested
+
       - name: Package the get-tested executable
         run: |
           GETTESTED_EXEC=distribution/get-tested
-          .github/workflows/process-binaries.sh
+          ARTIFACT_NAME="get-tested-head-alpine-3.20-static-${{ env.ARCH }}-ghc-9.10.1"
+          echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
+          ARCHIVE=${ARTIFACT_NAME}.tar.gz
           DIR=$(dirname $GETTESTED_EXEC)
           FILE=$(basename $GETTESTED_EXEC)
-          version=$(./distribution/get-tested --version)
-          GETTESTED_EXEC_TAR=get-tested-${version}-${{ runner.os }}-static-${{ env.ARCH }}.tar.gz
-          tar -czvf $GETTESTED_EXEC_TAR -C $DIR $FILE
-          echo GETTESTED_EXEC_TAR=$GETTESTED_EXEC_TAR >> $GITHUB_ENV
+          tar -czvf ${ARCHIVE} -C $DIR $FILE
 
       - name: Upload get-tested executable to workflow artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: artifact
-          path: ${{ env.GETTESTED_EXEC_TAR }}
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.ARTIFACT_NAME }}.tar.gz
+  collect-test-results:
+    name: Collect test results
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: ['build', 'build-alpine']
+    steps:
+      - name: Install junitparser
+        run: |
+          pip install junitparser==3.2.0
+
+      - name: Download Test Report
+        uses: actions/download-artifact@v4
+        with:
+          pattern: report-*
+          merge-multiple: true
+
+      - name: Merge XML files
+        run: |
+          junitparser merge --glob *.xml final-report.xml
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        with:
+          commit: ${{github.event.workflow_run.head_sha}}
+          report_paths: 'final-report.xml'
 
   release:
     name: Create a GitHub Release with the binary artifacts
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: ['tests', 'build-alpine']
+    needs: ['build', 'build-alpine']
 
     steps:
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
-        name: artifact
+        pattern: artifact-*
+        merge-multiple: true
         path: ./out
 
-    - name: Release
+    - name: Pre-release
       uses: softprops/action-gh-release@v2
-      if: startsWith(github.ref, 'refs/tags/')
       with:
-        draft: true
+        prerelease: true
         files: ./out/*
+        tag_name: get-tested-head
