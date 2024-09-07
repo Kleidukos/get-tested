@@ -28,7 +28,11 @@ runs:
         tmpdir="$(mktemp --directory "${RUNNER_TEMP}/setup-get-tested.XXX")"
         trap "rm -rf ${tmpdir}" EXIT
 
+        echo START DEBUG OUTPUT
         pwd
+        ls -al
+        ls -al .github
+        echo END DEBUG OUTPUT
 
         gh_release_flags=(
           --repo Kleidukos/get-tested
