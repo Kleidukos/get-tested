@@ -29,12 +29,17 @@ runs:
         trap "rm -rf ${tmpdir}" EXIT
 
         echo START DEBUG OUTPUT
+        set -x
         echo ${{ github.workspace }}
+        echo ${RUNNER_TEMP}
         pwd
         ls -al
         ls -al .github
         ls ..
         ls ../..
+        ls ../../_actions
+        ls ../../_temp
+        set +x
         echo END DEBUG OUTPUT
 
         gh_release_flags=(
