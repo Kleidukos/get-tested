@@ -29,9 +29,12 @@ runs:
         trap "rm -rf ${tmpdir}" EXIT
 
         echo START DEBUG OUTPUT
+        echo ${{ github.workspace }}
         pwd
         ls -al
         ls -al .github
+        ls ..
+        ls ../..
         echo END DEBUG OUTPUT
 
         gh_release_flags=(
