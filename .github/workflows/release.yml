@@ -246,7 +246,7 @@ jobs:
       with:
         draft: true
         files: ./out/*
-        name: ${{ env.version }}
+        name: v${{ env.version }}
         fail_on_unmatched_files: true
       env:
         version: ${{ needs.build-alpine.outputs.version }}
