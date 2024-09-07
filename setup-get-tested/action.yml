@@ -28,6 +28,8 @@ runs:
         tmpdir="$(mktemp --directory "${RUNNER_TEMP}/setup-get-tested.XXX")"
         trap "rm -rf ${tmpdir}" EXIT
 
+        pwd
+
         gh_release_flags=(
           --repo Kleidukos/get-tested
           --pattern 'get-tested-*-Linux-static-x86_64.tar.gz'
