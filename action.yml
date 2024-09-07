@@ -61,24 +61,8 @@ runs:
       #   uses: Kleidukos/get-tested/setup-get-tested@${{ github.action_ref }}
       #
       # See: https://github.com/actions/runner/issues/895
-      # We use the following step as a workaround:
-    - name: Fetch setup-get-tested action
-      shell: bash
-      env:
-        # See: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#github-context
-        MY_GITHUB_ACTION_REF: ${{ github.action_ref }}
-        MY_GITHUB_ACTION_REPOSITORY: ${{ github.action_repository }}
-      run: |
-        set -x
-        env | sort
-        ls ${{ github.action_path }}
-
-        mkdir -p ".github/.vendored/Kleidukos"
-        git clone https://github.com/Kleidukos/get-tested .github/.vendored/Kleidukos/get-tested
-        git -C .github/.vendored/Kleidukos/get-tested checkout "${MY_GITHUB_ACTION_REF}"
-
     - name: Set up get-tested
-      uses: ./.github/.vendored/Kleidukos/get-tested/setup-get-tested
+      uses: Kleidukos/get-tested/setup-get-tested
       with:
         version: ${{ inputs.version }}
 
