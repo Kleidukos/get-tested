@@ -57,7 +57,7 @@ runs:
       uses: actions/checkout@v4
 
     - name: Set up get-tested
-      uses: Kleidukos/get-tested/setup-get-tested
+      uses: Kleidukos/get-tested/setup-get-tested@${{ github.action_ref }}
       with:
         version: ${{ inputs.version }}
 
