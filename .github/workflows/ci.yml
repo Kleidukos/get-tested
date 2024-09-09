@@ -216,6 +216,8 @@ jobs:
     name: Create a GitHub prerelease with the binary artifacts
     runs-on: ubuntu-latest
     needs: ["build", "build-alpine"]
+    permissions:
+      contents: write
 
     steps:
     - uses: actions/download-artifact@v4
