@@ -230,5 +230,6 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         prerelease: true
+        draft: true
         files: ./out/*
         tag_name: get-tested-head
