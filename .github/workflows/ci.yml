@@ -48,7 +48,6 @@ jobs:
           ARCHITECTURE=$(uname -m)
           echo "ARCH=$ARCHITECTURE" >> $GITHUB_ENV
           echo "REPORT_NAME=report-${{ matrix.os }}-ghc-${{ matrix.ghc }}.xml" >> $GITHUB_ENV
-          echo ${{ env.ARCH }}
 
       - name: Freeze
         run: cabal freeze --project-file=cabal.release.project
@@ -89,7 +88,7 @@ jobs:
       - name: Package the get-tested executable
         run: |
           GETTESTED_EXEC=distribution/get-tested
-          ARTIFACT_NAME="get-tested-head-${{ matrix.os }}-static-${{ env.ARCH }}-${{ matrix.ghc }}"
+          ARTIFACT_NAME="get-tested-head-${{ env.KERNEL }}-${{ env.ARCH }}"
           echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
           ARCHIVE=${ARTIFACT_NAME}.tar.gz
           DIR=$(dirname $GETTESTED_EXEC)
@@ -129,8 +128,9 @@ jobs:
         run: |
           ARCHITECTURE=$(uname -m)
           echo "ARCH=$ARCHITECTURE" >> $GITHUB_ENV
-          echo "REPORT_NAME=report-alpine-ghc-9.10.1.xml" >> $GITHUB_ENV
-          echo ${{ env.ARCH }}
+          KERNEL=$(uname -m)
+          echo "KERNEL=$KERNEL" >> $GITHUB_ENV
+          echo "REPORT_NAME=report-alpine.xml" >> $GITHUB_ENV
 
       - name: Freeze
         run: cabal freeze --project-file=cabal.static.project
@@ -173,7 +173,7 @@ jobs:
       - name: Tar get-tested executable
         run: |
           GETTESTED_EXEC=distribution/get-tested
-          ARTIFACT_NAME="get-tested-head-alpine-3.20-static-${{ env.ARCH }}-ghc-9.10.1"
+          ARTIFACT_NAME="get-tested-head-${{ env.KERNEL }}-static-${{ env.ARCH }}"
           echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
           ARCHIVE=${ARTIFACT_NAME}.tar.gz
           DIR=$(dirname $GETTESTED_EXEC)
