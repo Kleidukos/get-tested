@@ -14,12 +14,12 @@ jobs:
     steps:
       - name: Extract the tested GHC versions
         id: set-matrix
-        uses: kleidukos/get-tested@e043bd97035b89e378860d91bbce6a56b83133c5
+        uses: kleidukos/get-tested@0.1.7.1
         with:
           cabal-file: get-tested.cabal
-          ubuntu-version: latest
+          ubuntu-version: 'latest'
           macos-version: 'latest'
-          version: 0.1.7.1
+          version: 0.1.7.0
   build:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
     needs: generate-matrix
@@ -47,7 +47,7 @@ jobs:
         run: |
           ARCHITECTURE=$(uname -m)
           echo "ARCH=$ARCHITECTURE" >> $GITHUB_ENV
-          echo "REPORT_NAME=report-${{ matrix.os }}-ghc-${{ matrix.ghc }}.xml" >> $GITHUB_ENV
+          echo "REPORT_NAME=report-${{ runner.os }}-ghc-${{ matrix.ghc }}.xml" >> $GITHUB_ENV
 
       - name: Freeze
         run: cabal freeze --project-file=cabal.release.project
@@ -87,19 +87,15 @@ jobs:
 
       - name: Package the get-tested executable
         run: |
-          GETTESTED_EXEC=distribution/get-tested
-          ARTIFACT_NAME="get-tested-head-${{ env.KERNEL }}-${{ env.ARCH }}"
+          executable=distribution/get-tested
+          ARTIFACT_NAME="get-tested-head-${{ runner.os }}-${{ env.ARCH }}"
           echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
-          ARCHIVE=${ARTIFACT_NAME}.tar.gz
-          DIR=$(dirname $GETTESTED_EXEC)
-          FILE=$(basename $GETTESTED_EXEC)
-          tar -czvf ${ARCHIVE} -C $DIR $FILE
 
       - name: Upload the get-tested executable
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
-          path: ${{ env.ARTIFACT_NAME }}.tar.gz
+          path: distribution/get-tested
 
   build-alpine:
     name: 9.10.1 on alpine-3.20
@@ -128,8 +124,6 @@ jobs:
         run: |
           ARCHITECTURE=$(uname -m)
           echo "ARCH=$ARCHITECTURE" >> $GITHUB_ENV
-          KERNEL=$(uname -m)
-          echo "KERNEL=$KERNEL" >> $GITHUB_ENV
           echo "REPORT_NAME=report-alpine.xml" >> $GITHUB_ENV
 
       - name: Freeze
@@ -162,9 +156,6 @@ jobs:
           mkdir distribution
           cp ${bin} distribution/get-tested
 
-      - name: File type
-        run: file distribution/get-tested
-
       - name: Post-process executables
         run: |
             strip distribution/get-tested
@@ -173,18 +164,14 @@ jobs:
       - name: Tar get-tested executable
         run: |
           GETTESTED_EXEC=distribution/get-tested
-          ARTIFACT_NAME="get-tested-head-${{ env.KERNEL }}-static-${{ env.ARCH }}"
+          ARTIFACT_NAME="get-tested-head-${{ runner.os }}-static-${{ env.ARCH }}"
           echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
-          ARCHIVE=${ARTIFACT_NAME}.tar.gz
-          DIR=$(dirname $GETTESTED_EXEC)
-          FILE=$(basename $GETTESTED_EXEC)
-          tar -czvf ${ARCHIVE} -C $DIR $FILE
 
       - name: Upload get-tested executable to workflow artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
-          path: ${{ env.ARTIFACT_NAME }}.tar.gz
+          path: distribution/get-tested
 
   collect-test-results:
     name: Collect test results
@@ -231,6 +218,5 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         prerelease: true
-        draft: true
         files: ./out/*
         tag_name: get-tested-head

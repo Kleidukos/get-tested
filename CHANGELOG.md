@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.1.8.1 -- 2024-09-13
+
+* Fix the setup action
+
 ## 0.1.8.0 -- 2024-09-06
 
 * Provide the `--newest` and `--oldest` flags to pick the newest or oldest-supported GHC. ([55](https://github.com/Kleidukos/get-tested/pull/55))
