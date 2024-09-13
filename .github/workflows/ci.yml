@@ -19,7 +19,7 @@ jobs:
           cabal-file: get-tested.cabal
           ubuntu-version: latest
           macos-version: 'latest'
-          version: 0.1.7.0
+          version: 0.1.7.1
   build:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
     needs: generate-matrix
