@@ -161,9 +161,8 @@ jobs:
             strip distribution/get-tested
             upx -9 distribution/get-tested
 
-      - name: Tar get-tested executable
+      - name: Create artifact name
         run: |
-          GETTESTED_EXEC=distribution/get-tested
           ARTIFACT_NAME="get-tested-head-${{ runner.os }}-static-${{ env.ARCH }}"
           echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
 

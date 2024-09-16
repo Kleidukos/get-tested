@@ -8,6 +8,7 @@ on:
 
 jobs:
   generate-matrix:
+    if: startsWith(github.ref, 'refs/tags/v')
     name: 'Generate matrix from cabal'
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -80,20 +81,19 @@ jobs:
           mkdir distribution
           cp ${bin} distribution/get-tested
 
-      - id: version
-        run: |
-          version=$(./distribution/get-tested --version)
-          echo "VERSION=${version}" >> "$GITHUB_ENV"
-
       - name: Post-process executables
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
             strip distribution/get-tested
             upx -9 distribution/get-tested
 
-      - name: Package the get-tested executable
+      - id: version
         run: |
-          executable=distribution/get-tested
+          version=$(./distribution/get-tested --version)
+          echo "VERSION=${version}" >> "$GITHUB_ENV"
+
+      - name: Create artifact name
+        run: |
           ARTIFACT_NAME="get-tested-${{ env.VERSION }}-${{ runner.os }}-${{ env.ARCH }}"
           echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
 
@@ -101,7 +101,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
-          path: ${{ env.ARTIFACT_NAME }}.tar.gz
+          path: distribution/get-tested
 
   build-alpine:
     env:
@@ -181,9 +181,8 @@ jobs:
             strip distribution/get-tested
             upx -9 distribution/get-tested
 
-      - name: Package the get-tested executable
+      - name: get-tested executable
         run: |
-          GETTESTED_EXEC=distribution/get-tested
           ARTIFACT_NAME="get-tested-${{ env.VERSION }}-${{ runner.os }}-static-${{ env.ARCH }}"
           echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
 
