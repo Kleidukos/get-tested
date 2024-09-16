@@ -90,12 +90,13 @@ jobs:
           executable=distribution/get-tested
           ARTIFACT_NAME="get-tested-head-${{ runner.os }}-${{ env.ARCH }}"
           echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
+          mv ./distribution/get-tested ${ARTIFACT_NAME}
 
       - name: Upload the get-tested executable
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
-          path: distribution/get-tested
+          path: ${{ env.ARTIFACT_NAME }}
 
   build-alpine:
     name: 9.10.1 on alpine-3.20
@@ -165,12 +166,13 @@ jobs:
         run: |
           ARTIFACT_NAME="get-tested-head-${{ runner.os }}-static-${{ env.ARCH }}"
           echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
+          mv ./distribution/get-tested ${ARTIFACT_NAME}
 
       - name: Upload get-tested executable to workflow artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
-          path: distribution/get-tested
+          path: ${{ env.ARTIFACT_NAME }}
 
   collect-test-results:
     name: Collect test results

@@ -185,12 +185,13 @@ jobs:
         run: |
           ARTIFACT_NAME="get-tested-${{ env.VERSION }}-${{ runner.os }}-static-${{ env.ARCH }}"
           echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
+          mv ./distribution/get-tested ${ARTIFACT_NAME}
 
       - name: Upload get-tested executable to workflow artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
-          path: distribution/get-tested
+          path: ${{ env.ARTIFACT_NAME }}
 
   collect-test-results:
     name: Collect test results
