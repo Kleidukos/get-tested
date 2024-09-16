@@ -48,8 +48,7 @@ jobs:
         run: |
           ARCHITECTURE=$(uname -m)
           echo "ARCH=$ARCHITECTURE" >> $GITHUB_ENV
-          echo "REPORT_NAME=report-${{ matrix.os }}-ghc-$(uname -m).xml" >> $GITHUB_ENV
-          echo ${{ env.ARCH }}
+          echo "REPORT_NAME=report-${{ runner.os }}-ghc-${{ matrix.ghc }}.xml" >> $GITHUB_ENV
 
       - name: Freeze
         run: cabal freeze --project-file=cabal.release.project
@@ -94,13 +93,9 @@ jobs:
 
       - name: Package the get-tested executable
         run: |
-          GETTESTED_EXEC=distribution/get-tested
+          executable=distribution/get-tested
           ARTIFACT_NAME="get-tested-${{ env.VERSION }}-${{ runner.os }}-${{ env.ARCH }}"
           echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
-          ARCHIVE=${ARTIFACT_NAME}.tar.gz
-          DIR=$(dirname $GETTESTED_EXEC)
-          FILE=$(basename $GETTESTED_EXEC)
-          tar -czvf ${ARCHIVE} -C $DIR $FILE
 
       - name: Upload the get-tested executable
         uses: actions/upload-artifact@v4
@@ -139,7 +134,7 @@ jobs:
         run: |
           ARCHITECTURE=$(uname -m)
           echo "ARCH=$ARCHITECTURE" >> $GITHUB_ENV
-          echo "REPORT_NAME=report-alpine-3.20-ghc-$(uname -m).xml" >> $GITHUB_ENV
+          echo "REPORT_NAME=report-alpine-ghc-$(uname -m).xml" >> $GITHUB_ENV
           echo ${{ env.ARCH }}
 
       - name: Freeze
@@ -191,16 +186,12 @@ jobs:
           GETTESTED_EXEC=distribution/get-tested
           ARTIFACT_NAME="get-tested-${{ env.VERSION }}-${{ runner.os }}-static-${{ env.ARCH }}"
           echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
-          ARCHIVE=${ARTIFACT_NAME}.tar.gz
-          DIR=$(dirname $GETTESTED_EXEC)
-          FILE=$(basename $GETTESTED_EXEC)
-          tar -czvf ${ARCHIVE} -C $DIR $FILE
 
       - name: Upload get-tested executable to workflow artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
-          path: ${{ env.ARTIFACT_NAME }}.tar.gz
+          path: distribution/get-tested
 
   collect-test-results:
     name: Collect test results
