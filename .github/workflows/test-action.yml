@@ -25,7 +25,7 @@ jobs:
 
       - name: Output matrix
         run: |
-          jq '.' <<< "${{ steps.create-matrix.matrix }}"
+          jq '.' <<< '${{ steps.create-matrix.outputs.matrix }}'
 
   test-setup-action:
     name: 'Test setup-get-tested action'
