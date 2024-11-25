@@ -43,6 +43,8 @@ common ghc-options
     -finline-generics-aggressively -fexpose-all-unfoldings -threaded
     -Wunused-packages
 
+  ghc-prof-options: -fprof-auto -fno-prof-count-entries -fprof-auto-calls
+
 common rts-options
   ghc-options: -rtsopts -threaded "-with-rtsopts=-N -T"
 
