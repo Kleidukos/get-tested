@@ -80,10 +80,11 @@ executable get-tested
   build-depends:
     , aeson                 ^>=2.2
     , base                  ^>=4.19
-    , bytestring            ^>=0.11
+    , Cabal-syntax          ^>=3.10.3
     , effectful             ^>=2.3
     , effectful-core        ^>=2.3
     , get-tested
+    , nonempty-vector       ^>=0.2.3
     , optparse-applicative  ^>=0.18
     , text                  ^>=2.1
     , text-display          ^>=0.0.1

@@ -3,6 +3,7 @@
 module GetTested.Extract
   ( loadFile
   , extractTestedWith
+  , extractNonEmptyTestedWith
   , filterCompilers
   ) where
 
@@ -62,28 +63,27 @@ parseString name bs = do
       throwError $ CabalFileCouldNotBeParsed name
 
 extractTestedWith
+  :: GenericPackageDescription
+  -> Vector Version
+extractTestedWith genericPackageDescription =
+  Vector.fromList genericPackageDescription.packageDescription.testedWith
+    & Vector.filter (\(flavour, _) -> flavour == GHC)
+    & expandUnionVersionRanges
+    & Vector.mapMaybe (\(_, versionRange) -> extractThisVersion versionRange)
+
+extractNonEmptyTestedWith
   :: (Error ProcessingError :> es)
   => FilePath
   -> GenericPackageDescription
   -> Eff es (NonEmptyVector Version)
-extractTestedWith path genericPackageDescription = do
-  let exactVersions =
-        Vector.fromList genericPackageDescription.packageDescription.testedWith
-          & Vector.filter (\(flavour, _) -> flavour == GHC)
-          & expandUnionVersionRanges
-          & Vector.filter (\(_, versionRange) -> isExactVersion versionRange)
-  case NEVector.fromVector exactVersions of
-    Nothing ->
-      throwError $ NoCompilerVersionsFound path
-    Just compilers ->
-      pure $
-        compilers
-          & NEVector.map (\(flavour, ThisVersion version) -> (flavour, version))
-          & NEVector.map snd
+extractNonEmptyTestedWith path genericPackageDescription =
+  case NEVector.fromVector (extractTestedWith genericPackageDescription) of
+    Nothing -> throwError $ NoCompilerVersionsFound path
+    Just compilers -> pure compilers
 
-isExactVersion :: VersionRange -> Bool
-isExactVersion (ThisVersion _) = True
-isExactVersion _ = False
+extractThisVersion :: VersionRange -> Maybe Version
+extractThisVersion (ThisVersion version) = Just version
+extractThisVersion _ = Nothing
 
 logAttention :: (Console :> es) => Text -> Eff es ()
 logAttention message = Console.putStrLn $ Text.encodeUtf8 message
@@ -104,8 +104,8 @@ expandUnionVersionRange (ThisVersion v) = Vector.singleton (ThisVersion v)
 expandUnionVersionRange (UnionVersionRanges r1 r2) = expandUnionVersionRange r1 <> expandUnionVersionRange r2
 expandUnionVersionRange _ = Vector.empty
 
-filterCompilers :: Options -> NonEmptyVector Version -> Vector Version
+filterCompilers :: GenerateOptions -> NonEmptyVector Version -> Vector Version
 filterCompilers options supportedCompilers
-  | options.newest = Vector.generate 1 $ const $ NEVector.maximum supportedCompilers
-  | options.oldest = Vector.generate 1 $ const $ NEVector.minimum supportedCompilers
+  | options.generateOptionsNewest = Vector.generate 1 $ const $ NEVector.maximum supportedCompilers
+  | options.generateOptionsOldest = Vector.generate 1 $ const $ NEVector.minimum supportedCompilers
   | otherwise = NEVector.toVector supportedCompilers

@@ -9,6 +9,7 @@ import Data.Text.Display
 import Data.Text.Lazy.Builder qualified as Builder
 import Data.Vector (Vector)
 import Data.Vector qualified as Vector
+import Data.Vector.NonEmpty (NonEmptyVector)
 import Distribution.Compiler
 import Distribution.Parsec (simpleParsec)
 import Distribution.Pretty qualified as Pretty
@@ -21,6 +22,7 @@ data ProcessingError
   | CabalFileCouldNotBeParsed FilePath
   | NoCompilerVersionsFound FilePath
   | IncompatibleOptions Text Text
+  | VersionCheckFailed FilePath (NonEmptyVector Version)
   deriving stock (Eq, Ord, Show)
   deriving
     (Display)

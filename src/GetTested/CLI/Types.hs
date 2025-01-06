@@ -1,16 +1,30 @@
 module GetTested.CLI.Types where
 
 import Data.Text (Text)
+import Data.Vector (Vector)
+import Distribution.Types.Version (Version)
 
-data Options = Options
-  { path :: FilePath
-  , macosFlag :: Bool
-  , macosVersion :: Maybe Text
-  , ubuntuFlag :: Bool
-  , ubuntuVersion :: Maybe Text
-  , windowsFlag :: Bool
-  , windowsVersion :: Maybe Text
-  , newest :: Bool
-  , oldest :: Bool
+data Command
+  = CheckCommand CheckOptions
+  | GenerateCommand GenerateOptions
+  deriving stock (Show, Eq)
+
+data CheckOptions = CheckOptions
+  { checkOptionsFrom :: Maybe FilePath
+  , checkOptionsPath :: FilePath
+  , checkOptionsVersions :: Vector Version
+  }
+  deriving stock (Show, Eq)
+
+data GenerateOptions = GenerateOptions
+  { generateOptionsPath :: FilePath
+  , generateOptionsMacosFlag :: Bool
+  , generateOptionsMacosVersion :: Maybe Text
+  , generateOptionsUbuntuFlag :: Bool
+  , generateOptionsUbuntuVersion :: Maybe Text
+  , generateOptionsWindowsFlag :: Bool
+  , generateOptionsWindowsVersion :: Maybe Text
+  , generateOptionsNewest :: Bool
+  , generateOptionsOldest :: Bool
   }
   deriving stock (Show, Eq)
