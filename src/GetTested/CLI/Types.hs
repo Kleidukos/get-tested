@@ -4,11 +4,6 @@ import Data.Text (Text)
 import Data.Vector (Vector)
 import Distribution.Types.Version (Version)
 
-data Command
-  = CheckCommand CheckOptions
-  | GenerateCommand GenerateOptions
-  deriving stock (Show, Eq)
-
 data CheckOptions = CheckOptions
   { checkOptionsFrom :: Maybe FilePath
   , checkOptionsPath :: FilePath

@@ -29,13 +29,20 @@ import GetTested.Extract
 import GetTested.Types
 import Paths_get_tested (version)
 
+data Command
+  = CheckCommand CheckOptions
+  | GenerateCommand GenerateOptions
+  | LegacyDefault GenerateOptions
 
 main :: IO ()
 main = do
-  cmd <- execParser (parser `withInfo` "Generate a test matrix from the tested-with stanza of your cabal file")
+  cmd <- execParser (parser `withInfo` "A utility to work with the tested-with stanza of your cabal files")
   processingResult <- runCLIEff $ case cmd of
     CheckCommand options -> check options
     GenerateCommand options -> generate options
+    LegacyDefault options -> do
+      -- TODO: Display a warining and suggest migration to `get-tested generate` ?
+      generate options
   case processingResult of
     Right () -> pure ()
     Left err -> do
@@ -44,8 +51,15 @@ main = do
 
 parser :: Parser Command
 parser =
-  ( hsubparser (command "check" checkCommandParserInfo)
-      <|> (GenerateCommand <$> generateOptionsParser)
+  ( hsubparser
+      ( command "check" checkCommandParserInfo
+          <> metavar "check"
+      )
+      <|> hsubparser
+        ( command "generate" generateCommandParserInfo
+            <> metavar "generate"
+        )
+      <|> (LegacyDefault <$> generateOptionsParser False)
   )
     <**> simpleVersioner (Data.Version.showVersion version)
 
@@ -64,24 +78,80 @@ checkOptionsParser =
           <> help "Include the tested versions of this Cabal file"
           <> action "file"
       )
-    <*> strArgument (metavar "FILE" <> action "file")
+    <*> strArgument
+      ( metavar "FILE"
+          <> action "file"
+      )
     <*> (fmap Vector.fromList . many . argument versionReader)
       ( metavar "VERSION"
           <> help "Check if this version is one of the tested versions"
       )
 
-generateOptionsParser :: Parser GenerateOptions
-generateOptionsParser =
+generateCommandParserInfo :: ParserInfo Command
+generateCommandParserInfo =
+  info
+    (GenerateCommand <$> generateOptionsParser True)
+    (progDesc "Generate a test matrix from the tested-with stanza of your Cabal file")
+
+generateOptionsParser
+  :: Bool
+  -- ^ Whether to display the options in the help text or not
+  -> Parser GenerateOptions
+generateOptionsParser doDisplay =
   GenerateOptions
-    <$> strArgument (metavar "FILE" <> action "file")
-    <*> switch (long "macos" <> help "(legacy) Enable the macOS runner's latest version")
-    <*> optional (strOption (long "macos-version" <> metavar "VERSION" <> help "Enable the macOS runner with the selected version"))
-    <*> switch (long "ubuntu" <> help "(legacy) Enable the Ubuntu runner's latest version")
-    <*> optional (strOption (long "ubuntu-version" <> metavar "VERSION" <> help "Enable the Ubuntu runner with the selected version"))
-    <*> switch (long "windows" <> help "(legacy) Enable the Windows runner's latest version")
-    <*> optional (strOption (long "windows-version" <> metavar "VERSION" <> help "Enable the Windows runner with the selected version"))
-    <*> switch (long "newest" <> help "Enable only the newest GHC version found in the cabal file")
-    <*> switch (long "oldest" <> help "Enable only the oldest GHC version found in the cabal file")
+    <$> strArgument
+      ( metavar "FILE"
+          <> action "file"
+          <> minternal
+      )
+    <*> switch
+      ( long "macos"
+          <> help "(legacy) Enable the macOS runner's latest version"
+          <> minternal
+      )
+    <*> (optional . strOption)
+      ( long "macos-version"
+          <> metavar "VERSION"
+          <> help "Enable the macOS runner with the selected version"
+          <> minternal
+      )
+    <*> switch
+      ( long "ubuntu"
+          <> help "(legacy) Enable the Ubuntu runner's latest version"
+          <> minternal
+      )
+    <*> (optional . strOption)
+      ( long "ubuntu-version"
+          <> metavar "VERSION"
+          <> help "Enable the Ubuntu runner with the selected version"
+          <> minternal
+      )
+    <*> switch
+      ( long "windows"
+          <> help "(legacy) Enable the Windows runner's latest version"
+          <> minternal
+      )
+    <*> (optional . strOption)
+      ( long "windows-version"
+          <> metavar "VERSION"
+          <> help "Enable the Windows runner with the selected version"
+          <> minternal
+      )
+    <*> switch
+      ( long "newest"
+          <> help "Enable only the newest GHC version found in the cabal file"
+          <> minternal
+      )
+    <*> switch
+      ( long "oldest"
+          <> help "Enable only the oldest GHC version found in the cabal file"
+          <> minternal
+      )
+  where
+    minternal :: Mod f a
+    minternal
+      | doDisplay = idm
+      | otherwise = internal
 
 check
   :: (Error ProcessingError :> es, FileSystem :> es)
