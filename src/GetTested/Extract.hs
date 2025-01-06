@@ -10,9 +10,6 @@ module GetTested.Extract
 import Control.Monad
 import Data.ByteString qualified as BS
 import Data.Function ((&))
-import Data.Text (Text)
-import Data.Text.Display (display)
-import Data.Text.Encoding qualified as Text
 import Data.Vector (Vector)
 import Data.Vector qualified as Vector
 import Data.Vector.NonEmpty (NonEmptyVector)
@@ -24,8 +21,6 @@ import Distribution.PackageDescription.Parsec
 import Distribution.Types.Version (Version)
 import Distribution.Types.VersionRange.Internal (VersionRange (..))
 import Effectful
-import Effectful.Console.ByteString (Console)
-import Effectful.Console.ByteString qualified as Console
 import Effectful.Error.Static (Error, throwError)
 import Effectful.FileSystem (FileSystem)
 import Effectful.FileSystem qualified as FileSystem
@@ -36,20 +31,19 @@ import GetTested.Types
 
 -- | Loads and parses a Cabal file
 loadFile
-  :: (Console :> es, FileSystem :> es, Error ProcessingError :> es)
+  :: (FileSystem :> es, Error ProcessingError :> es)
   => FilePath
   -- ^ The absolute path to the Cabal file
   -> Eff es GenericPackageDescription
 loadFile path = do
   exists <- FileSystem.doesFileExist path
-  unless exists $
-    throwError $
-      CabalFileNotFound path
+  unless exists $ do
+    throwError $ CabalFileNotFound path
   content <- FileSystem.readFile path
   parseString path content
 
 parseString
-  :: (Console :> es, Error ProcessingError :> es)
+  :: (Error ProcessingError :> es)
   => String
   -- ^ File name
   -> BS.ByteString
@@ -58,9 +52,7 @@ parseString name bs = do
   let (_warnings, result) = runParseResult (parseGenericPackageDescription bs)
   case result of
     Right x -> pure x
-    Left err -> do
-      logAttention (display $ show err)
-      throwError $ CabalFileCouldNotBeParsed name
+    Left err -> throwError $ CabalFileCouldNotBeParsed name (show err)
 
 extractTestedWith
   :: GenericPackageDescription
@@ -84,9 +76,6 @@ extractNonEmptyTestedWith path genericPackageDescription =
 extractThisVersion :: VersionRange -> Maybe Version
 extractThisVersion (ThisVersion version) = Just version
 extractThisVersion _ = Nothing
-
-logAttention :: (Console :> es) => Text -> Eff es ()
-logAttention message = Console.putStrLn $ Text.encodeUtf8 message
 
 expandUnionVersionRanges
   :: Vector (CompilerFlavor, VersionRange)

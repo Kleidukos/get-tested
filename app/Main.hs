@@ -4,15 +4,14 @@ import Control.Monad (when)
 import Data.Aeson qualified as Aeson
 import Data.Function ((&))
 import Data.Text (Text)
-import Data.Text qualified as Text
 import Data.Text.Display (display)
+import Data.Text.IO qualified
 import Data.Vector (Vector)
 import Data.Vector qualified as Vector
 import Data.Vector.NonEmpty qualified as NEVector
 import Data.Version qualified
 import Distribution.Parsec (parsec, runParsecParser)
 import Distribution.Parsec.FieldLineStream (fieldLineStreamFromString)
-import Distribution.Pretty (prettyShow)
 import Distribution.Types.Version (Version)
 import Effectful
 import Effectful.Console.ByteString (Console)
@@ -30,6 +29,7 @@ import GetTested.Extract
 import GetTested.Types
 import Paths_get_tested (version)
 
+
 main :: IO ()
 main = do
   cmd <- execParser (parser `withInfo` "Generate a test matrix from the tested-with stanza of your cabal file")
@@ -38,24 +38,8 @@ main = do
     GenerateCommand options -> generate options
   case processingResult of
     Right () -> pure ()
-    Left (CabalFileNotFound path) -> do
-      putStrLn $ "get-tested: Could not find cabal file at path " <> path
-      exitFailure
-    Left (CabalFileCouldNotBeParsed path) -> do
-      putStrLn $ "get-tested: Could not parse cabal file at path " <> path
-      exitFailure
-    Left (NoCompilerVersionsFound path) -> do
-      putStrLn $ "get-tested: No compilers found in " <> path
-      exitFailure
-    Left (IncompatibleOptions opt1 opt2) -> do
-      putStrLn $ Text.unpack $ "get-tested: Incompatible options: " <> opt1 <> " and " <> opt2 <> " cannot be passed simultaneously."
-      exitFailure
-    Left (VersionCheckFailed path failures) -> do
-      putStrLn $
-        "get-tested: Check for "
-          <> path
-          <> " failed:"
-          <> foldMap (\compiler -> "\n  " <> prettyShow compiler) failures
+    Left err -> do
+      Data.Text.IO.putStrLn $ "get-tested: " <> display err
       exitFailure
 
 parser :: Parser Command
@@ -100,7 +84,7 @@ generateOptionsParser =
     <*> switch (long "oldest" <> help "Enable only the oldest GHC version found in the cabal file")
 
 check
-  :: (Console :> es, Error ProcessingError :> es, FileSystem :> es)
+  :: (Error ProcessingError :> es, FileSystem :> es)
   => CheckOptions -> Eff es ()
 check options = do
   compilers <- extractTestedWith <$> loadFile options.checkOptionsPath
