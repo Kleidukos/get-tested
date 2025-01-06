@@ -19,21 +19,21 @@ spec =
 testFilteringNewestCompiler :: TestEff ()
 testFilteringNewestCompiler = do
   let options =
-        Options
-          { path = "./test/fixtures/one.cabal"
-          , macosFlag = False
-          , macosVersion = Nothing
-          , ubuntuFlag = False
-          , ubuntuVersion = Just "latest"
-          , windowsFlag = False
-          , windowsVersion = Nothing
-          , newest = True
-          , oldest = False
+        GenerateOptions
+          { generateOptionsPath = "./test/fixtures/one.cabal"
+          , generateOptionsMacosFlag = False
+          , generateOptionsMacosVersion = Nothing
+          , generateOptionsUbuntuFlag = False
+          , generateOptionsUbuntuVersion = Just "latest"
+          , generateOptionsWindowsFlag = False
+          , generateOptionsWindowsVersion = Nothing
+          , generateOptionsNewest = True
+          , generateOptionsOldest = False
           }
   genericPackageDescription <- Extract.loadFile "./test/fixtures/one.cabal"
   result <-
     Extract.filterCompilers options
-      <$> Extract.extractTestedWith options.path genericPackageDescription
+      <$> Extract.extractNonEmptyTestedWith options.generateOptionsPath genericPackageDescription
   assertEqual
     ""
     (Vector.singleton $ Version.mkVersion [9, 10, 1])
@@ -42,21 +42,21 @@ testFilteringNewestCompiler = do
 testFilteringOldestCompiler :: TestEff ()
 testFilteringOldestCompiler = do
   let options =
-        Options
-          { path = "./test/fixtures/one.cabal"
-          , macosFlag = False
-          , macosVersion = Nothing
-          , ubuntuFlag = False
-          , ubuntuVersion = Just "latest"
-          , windowsFlag = False
-          , windowsVersion = Nothing
-          , newest = False
-          , oldest = True
+        GenerateOptions
+          { generateOptionsPath = "./test/fixtures/one.cabal"
+          , generateOptionsMacosFlag = False
+          , generateOptionsMacosVersion = Nothing
+          , generateOptionsUbuntuFlag = False
+          , generateOptionsUbuntuVersion = Just "latest"
+          , generateOptionsWindowsFlag = False
+          , generateOptionsWindowsVersion = Nothing
+          , generateOptionsNewest = False
+          , generateOptionsOldest = True
           }
   genericPackageDescription <- Extract.loadFile "./test/fixtures/one.cabal"
   result <-
     Extract.filterCompilers options
-      <$> Extract.extractTestedWith options.path genericPackageDescription
+      <$> Extract.extractNonEmptyTestedWith options.generateOptionsPath genericPackageDescription
   assertEqual
     ""
     (Vector.singleton $ Version.mkVersion [8, 10, 7])

@@ -3,12 +3,14 @@
 module GetTested.Types where
 
 import Data.Aeson
+import Data.String (fromString)
 import Data.Text (Text)
 import Data.Text qualified as Text
+import Data.Text.Builder.Linear qualified as Builder
 import Data.Text.Display
-import Data.Text.Lazy.Builder qualified as Builder
 import Data.Vector (Vector)
 import Data.Vector qualified as Vector
+import Data.Vector.NonEmpty (NonEmptyVector)
 import Distribution.Compiler
 import Distribution.Parsec (simpleParsec)
 import Distribution.Pretty qualified as Pretty
@@ -18,13 +20,29 @@ import GHC.Generics (Generic)
 
 data ProcessingError
   = CabalFileNotFound FilePath
-  | CabalFileCouldNotBeParsed FilePath
+  | CabalFileCouldNotBeParsed FilePath String
   | NoCompilerVersionsFound FilePath
   | IncompatibleOptions Text Text
+  | VersionCheckFailed FilePath (NonEmptyVector Version)
   deriving stock (Eq, Ord, Show)
-  deriving
-    (Display)
-    via ShowInstance ProcessingError
+
+instance Display ProcessingError where
+  displayBuilder (CabalFileNotFound path) =
+    "Could not find cabal file at path " <> fromString path
+  displayBuilder (CabalFileCouldNotBeParsed path err) =
+    ("Could not parse cabal file at path " <> fromString path <> ": ")
+      <> fromString err
+  displayBuilder (IncompatibleOptions opt1 opt2) =
+    "Incompatible options: "
+      <> Builder.fromText opt1
+      <> " and "
+      <> Builder.fromText opt2
+      <> " cannot be passed simultaneously."
+  displayBuilder (NoCompilerVersionsFound path) =
+    "No compilers found in " <> fromString path
+  displayBuilder (VersionCheckFailed path failures) =
+    ("Check for " <> fromString path <> " failed:")
+      <> foldMap (\compiler -> "\n  " <> displayBuilder compiler) failures
 
 data RunnerOS
   = Ubuntu
@@ -45,10 +63,13 @@ instance FromJSON CompilerFlavor where
     maybe (fail "Invalid compiler flavor") pure (simpleParsec $ Text.unpack s)
 
 instance Display CompilerFlavor where
-  displayBuilder = Builder.fromString . Pretty.prettyShow
+  displayBuilder = fromString . Pretty.prettyShow
 
 instance Display VersionRange where
-  displayBuilder = Builder.fromString . Pretty.prettyShow
+  displayBuilder = fromString . Pretty.prettyShow
+
+instance Display Version where
+  displayBuilder = fromString . Pretty.prettyShow
 
 instance ToJSON Version where
   toJSON = toJSON . Pretty.prettyShow
