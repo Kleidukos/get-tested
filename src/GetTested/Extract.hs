@@ -84,7 +84,7 @@ expandUnionVersionRanges ranges =
   Vector.concatMap
     ( \(f, range) ->
         let expandedVersions = expandUnionVersionRange range
-         in Vector.map (\v -> (f, v)) expandedVersions
+         in Vector.map (f,) expandedVersions
     )
     ranges
 
