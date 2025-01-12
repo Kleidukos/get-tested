@@ -63,7 +63,7 @@ library
     , aeson            ^>=2.2
     , base             >=4.19 && <4.21
     , bytestring       >=0.11 && <0.13
-    , Cabal-syntax     ^>=3.10.3
+    , Cabal-syntax     >=3.10.3 && <3.15
     , effectful        ^>=2.3
     , nonempty-vector  ^>=0.2.3
     , text             ^>=2.1
