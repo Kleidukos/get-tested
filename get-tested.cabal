@@ -65,7 +65,6 @@ library
     , bytestring       ^>=0.11
     , Cabal-syntax     ^>=3.10.3
     , effectful        ^>=2.3
-    , effectful-core   ^>=2.3
     , nonempty-vector  ^>=0.2.3
     , text             ^>=2.1
     , text-display     ^>=1.0
@@ -82,7 +81,6 @@ executable get-tested
     , base                  >=4.19 && <4.21
     , bytestring            ^>=0.11
     , effectful             ^>=2.3
-    , effectful-core        ^>=2.3
     , get-tested
     , optparse-applicative  ^>=0.18
     , text                  ^>=2.1
@@ -106,7 +104,6 @@ test-suite get-tested-test
     , base
     , Cabal-syntax
     , effectful
-    , effectful-core
     , get-tested
     , tasty
     , tasty-hunit
