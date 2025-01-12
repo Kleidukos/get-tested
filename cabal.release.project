@@ -1,5 +1,7 @@
 import: cabal.project
 
+with-compiler: ghc-9.10
+
 optimization: 2
 
 documentation: False
@@ -7,3 +9,17 @@ documentation: False
 executable-stripping: True
 
 library-stripping: True
+
+tests: True
+
+semaphore: True
+
+multi-repl: True
+
+allow-newer: all
+
+test-show-details: direct
+
+package *
+  ghc-options: +RTS -A32m -RTS -j
+  split-sections: True

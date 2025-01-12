@@ -1,23 +1,5 @@
 packages: ./
 
-with-compiler: ghc-9.10
-
-optimization: 2
-
-tests: True
-
-semaphore: True
-
-multi-repl: True
-
-allow-newer: all
-
-test-show-details: direct
-
-package *
-  ghc-options: +RTS -A32m -RTS -j
-  split-sections: True
-
 allow-newer:
     tasty-test-reporter:mtl
   , tasty-test-reporter:ansi-terminal
