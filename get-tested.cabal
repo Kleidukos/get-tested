@@ -68,7 +68,7 @@ library
     , effectful-core   ^>=2.3
     , nonempty-vector  ^>=0.2.3
     , text             ^>=2.1
-    , text-display     ^>=0.0.1
+    , text-display     ^>=1.0
     , vector           ^>=0.13
 
 executable get-tested
@@ -86,7 +86,7 @@ executable get-tested
     , get-tested
     , optparse-applicative  ^>=0.18
     , text                  ^>=2.1
-    , text-display          ^>=0.0.1
+    , text-display          ^>=1.0
     , vector                ^>=0.13
 
   hs-source-dirs: app
