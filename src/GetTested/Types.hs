@@ -66,6 +66,8 @@ data ActionMatrix = ActionMatrix
 data PlatformAndVersion = PlatformAndVersion
   { os :: Text
   , ghc :: Version
+  , oldest :: Bool
+  , newest :: Bool
   }
   deriving stock (Eq, Ord, Generic)
   deriving anyclass (ToJSON)
