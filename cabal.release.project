@@ -14,10 +14,6 @@ tests: True
 
 semaphore: True
 
-multi-repl: True
-
-allow-newer: all
-
 test-show-details: direct
 
 package *
