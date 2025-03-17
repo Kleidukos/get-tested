@@ -1,5 +1,7 @@
 packages: ./
 
+with-compiler: ghc-9.10
+
 allow-newer:
     tasty-test-reporter:mtl
   , tasty-test-reporter:ansi-terminal

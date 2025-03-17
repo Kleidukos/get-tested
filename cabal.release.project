@@ -1,7 +1,5 @@
 import: cabal.project
 
-with-compiler: ghc-9.10
-
 optimization: 2
 
 documentation: False
