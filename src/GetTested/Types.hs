@@ -3,10 +3,10 @@
 module GetTested.Types where
 
 import Data.Aeson
+import Data.String (fromString)
 import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Text.Display
-import Data.Text.Lazy.Builder qualified as Builder
 import Data.Vector (Vector)
 import Data.Vector qualified as Vector
 import Distribution.Compiler
@@ -45,10 +45,10 @@ instance FromJSON CompilerFlavor where
     maybe (fail "Invalid compiler flavor") pure (simpleParsec $ Text.unpack s)
 
 instance Display CompilerFlavor where
-  displayBuilder = Builder.fromString . Pretty.prettyShow
+  displayBuilder = fromString . Pretty.prettyShow
 
 instance Display VersionRange where
-  displayBuilder = Builder.fromString . Pretty.prettyShow
+  displayBuilder = fromString . Pretty.prettyShow
 
 instance ToJSON Version where
   toJSON = toJSON . Pretty.prettyShow

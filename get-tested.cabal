@@ -61,14 +61,13 @@ library
 
   build-depends:
     , aeson            ^>=2.2
-    , base             ^>=4.19
-    , bytestring       ^>=0.11
-    , Cabal-syntax     ^>=3.10.3
-    , effectful        ^>=2.3
-    , effectful-core   ^>=2.3
+    , base             >=4.19 && <4.22
+    , bytestring       >=0.11 && <0.13
+    , Cabal-syntax     >=3.10.3 && <3.15
+    , effectful        >=2.3 && <2.6
     , nonempty-vector  ^>=0.2.3
     , text             ^>=2.1
-    , text-display     ^>=0.0.1
+    , text-display     ^>=1.0
     , vector           ^>=0.13
 
 executable get-tested
@@ -79,14 +78,13 @@ executable get-tested
   other-modules:  Paths_get_tested
   build-depends:
     , aeson                 ^>=2.2
-    , base                  ^>=4.19
-    , bytestring            ^>=0.11
-    , effectful             ^>=2.3
-    , effectful-core        ^>=2.3
+    , base                  >=4.19 && <4.22
+    , bytestring            >=0.11 && <0.13
+    , effectful             >=2.3 && <2.6
     , get-tested
     , optparse-applicative  ^>=0.18
     , text                  ^>=2.1
-    , text-display          ^>=0.0.1
+    , text-display          ^>=1.0
     , vector                ^>=0.13
 
   hs-source-dirs: app
@@ -106,7 +104,6 @@ test-suite get-tested-test
     , base
     , Cabal-syntax
     , effectful
-    , effectful-core
     , get-tested
     , tasty
     , tasty-hunit

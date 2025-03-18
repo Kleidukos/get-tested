@@ -7,3 +7,13 @@ documentation: False
 executable-stripping: True
 
 library-stripping: True
+
+tests: True
+
+semaphore: True
+
+test-show-details: direct
+
+package *
+  ghc-options: +RTS -A32m -RTS -j
+  split-sections: True
