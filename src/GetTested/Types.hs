@@ -45,10 +45,10 @@ instance FromJSON CompilerFlavor where
     maybe (fail "Invalid compiler flavor") pure (simpleParsec $ Text.unpack s)
 
 instance Display CompilerFlavor where
-  displayBuilder = fromString . Pretty.prettyShow
+  displayBuilder = displayBuilder . Pretty.prettyShow
 
 instance Display VersionRange where
-  displayBuilder = fromString . Pretty.prettyShow
+  displayBuilder = displayBuilder . Pretty.prettyShow
 
 instance ToJSON Version where
   toJSON = toJSON . Pretty.prettyShow

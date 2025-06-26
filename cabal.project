@@ -1,6 +1,24 @@
 packages: ./
 
-with-compiler: ghc-9.10
+with-compiler: ghc-9.10.1
+
+optimization: 2
+
+tests: True
+
+semaphore: True
+
+jobs: $ncpus
+
+multi-repl: True
+
+allow-newer: all
+
+test-show-details: direct
+
+package *
+  ghc-options: +RTS -A32m -RTS
+  split-sections: True
 
 allow-newer:
     tasty-test-reporter:mtl
@@ -14,4 +32,4 @@ allow-newer:
 source-repository-package
   type: git
   location: https://github.com/goodlyrottenapple/tasty-test-reporter 
-  tag: b704130
+  tag: b704130545aa3925a8487bd3e92f1dd5ce0512e2
