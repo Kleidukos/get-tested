@@ -74,7 +74,7 @@ runs:
         then
           echo "::debug::Windows explicit enabled: ${{ inputs.windows-version }}"
           echo "WINDOWS=--windows-version=${{ inputs.windows-version }}" >> $GITHUB_ENV
-        elif [[ ${{ inputs.windows }} == "true" ]]
+        elif [[ "${{ inputs.windows }}" == "true" ]]
         then
           echo "::warning title=Legacy option `windows`::Windows fallback enabled: ${{ inputs.windows }}"
           echo "WINDOWS=--windows" >> $GITHUB_ENV
@@ -90,7 +90,7 @@ runs:
         then
           echo "::debug::macOS explicit version enabled: ${{ inputs.macos-version }}"
           echo "MACOS=--macos-version=${{ inputs.macos-version }}" >> $GITHUB_ENV
-        elif [[ ${{ inputs.macos }} == "true" ]]
+        elif [[ "${{ inputs.macos }}" == "true" ]]
         then
           echo "::warning title=Legacy option `macos`::macOS fallback enabled: ${{ inputs.macos }}"
           echo "MACOS=--macos" >> $GITHUB_ENV
@@ -104,8 +104,8 @@ runs:
         if [[ "${{ inputs.ubuntu-version }}" != "" ]]
         then
           echo "::debug::Ubuntu explicit version enabled: ${{ inputs.ubuntu-version }}"
-          echo "UBUNTU=--ubuntu-version=${{ inputs.ubuntu-version }}" >> $GITHUB_ENV
-        elif [[ ${{ inputs.ubuntu }} == "true" ]]
+          echo "UBUNTU=--ubuntu-version=${{ inputs.ubuntu-version }}" >> "$GITHUB_ENV"
+        elif [[ "${{ inputs.ubuntu }}" == "true" ]]
         then
           echo "::warning title=Legacy option `ubuntu`::Ubuntu fallback enabled: ${{ inputs.ubuntu }}"
           echo "UBUNTU=--ubuntu" >> $GITHUB_ENV
@@ -118,17 +118,16 @@ runs:
         echo "::debug::Is --newest enabled: ${{ inputs.newest }}"
         echo "::debug::Is --oldest enabled: ${{ inputs.oldest }}"
 
-        if [[ "${{ inputs.oldest}} == "true" " && "${{ inputs.newest }}" == "true"  ]]
-        then 
+        if [[ "${{ inputs.oldest }}" == "true" && "${{ inputs.newest }}" == "true" ]]; then
           echo "::error title=Incompatible options::You cannot use the 'oldest' and 'newest' options together!"
           exit 1
         fi
 
-        if [[ ${{ inputs.oldest }} == "true" ]]
+        if [[ "${{ inputs.oldest }}" == "true" ]]
         then
           echo "::debug::oldest version enabled"
           echo "RELATIVE_VERSION=--oldest" >> $GITHUB_ENV
-        elif [[ ${{ inputs.newest }} == "true" ]]
+        elif [[ "${{ inputs.newest }}" == "true" ]]
         then
           echo "::debug::newest version enabled"
           echo "RELATIVE_VERSION=--newest" >> $GITHUB_ENV
@@ -141,7 +140,7 @@ runs:
       id: set-matrix
       shell: bash
       run: |
-        ./get-tested $WINDOWS $MACOS $UBUNTU $RELATIVE_VERSION ${{ inputs.cabal-file }} >> $GITHUB_OUTPUT
+        ./get-tested $WINDOWS $MACOS $UBUNTU $RELATIVE_VERSION "${{ inputs.cabal-file }}" >> "$GITHUB_OUTPUT"
 
 branding:
   icon: 'list'
