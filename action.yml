@@ -12,7 +12,7 @@ inputs:
   windows:
     description: "Enable Windows runner, latest version"
     required: false
-    default: false
+    default: 'false'
     deprecationMessage: "Please use 'windows-version: latest' instead."
   windows-version:
     description: "Enable Windows runner. If both `windows` and `windows-version` inputs are set, the explicit version will take priority"
@@ -21,7 +21,7 @@ inputs:
   macos:
     description: "Enable macOS runner, latest version"
     required: false
-    default: false
+    default: 'false'
     deprecationMessage: "Please use 'macos-version: latest' instead."
   macos-version:
     description: "Enable macOS runner.  If both `macos` and `macos-version` inputs are set, the explicit version will take priority"
@@ -30,7 +30,7 @@ inputs:
   ubuntu:
     description: "Enable Ubuntu runner, latest version"
     required: false
-    default: false
+    default: 'false'
     deprecationMessage: "Please use 'ubuntu-version: latest' instead."
   ubuntu-version:
     description: "Enable Ubuntu runner.  If both `ubuntu` and `ubuntu-version` inputs are set, the explicit version will take priority"
@@ -39,11 +39,11 @@ inputs:
   newest:
     description: "Enable only the newest GHC version found in the cabal file"
     required: false
-    default: false
+    default: 'false'
   oldest:
     description: "Enable only the oldest GHC version found in the cabal file"
     required: false
-    default: false
+    default: 'false'
 
 outputs:
   matrix:
