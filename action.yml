@@ -126,11 +126,11 @@ runs:
         if [[ "${{ inputs.oldest }}" == "true" ]]
         then
           echo "::debug::oldest version enabled"
-          echo "RELATIVE_VERSION=--oldest" >> $GITHUB_ENV
+          echo "RELATIVE_VERSION=--oldest" >> "$GITHUB_ENV"
         elif [[ "${{ inputs.newest }}" == "true" ]]
         then
           echo "::debug::newest version enabled"
-          echo "RELATIVE_VERSION=--newest" >> $GITHUB_ENV
+          echo "RELATIVE_VERSION=--newest" >> "$GITHUB_ENV"
         else
           echo "::debug::No relative version selected"
         fi
