@@ -3,7 +3,6 @@
 module GetTested.Types where
 
 import Data.Aeson
-import Data.String (fromString)
 import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Text.Display
