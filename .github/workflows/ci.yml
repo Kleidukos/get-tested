@@ -185,7 +185,7 @@ jobs:
           pip install junitparser==3.2.0
 
       - name: Download Test Report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: report-*
           merge-multiple: true
@@ -209,7 +209,7 @@ jobs:
       contents: write
 
     steps:
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v5
       with:
         pattern: get-tested-*
         merge-multiple: true
