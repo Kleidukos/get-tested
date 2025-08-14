@@ -9,7 +9,7 @@ license:         BSD-3-Clause
 license-file:    LICENSE
 author:          Hécate Kleidukos
 maintainer:      hecate+github@glitchbra.in
-tested-with:     GHC ==9.10.1
+tested-with:     GHC ==9.10.2
 
 -- copyright:
 category:        Development

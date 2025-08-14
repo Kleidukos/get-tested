@@ -24,7 +24,7 @@ import System.Exit
 import GetTested.CLI.Types
 import GetTested.Extract
 import GetTested.Types
-import Paths_get_tested (version)
+import Paths_get_tested qualified
 
 main :: IO ()
 main = do
@@ -57,7 +57,7 @@ parseOptions =
     <*> optional (strOption (long "windows-version" <> metavar "VERSION" <> help "Enable the Windows runner with the selected version"))
     <*> switch (long "newest" <> help "Enable only the newest GHC version found in the cabal file")
     <*> switch (long "oldest" <> help "Enable only the oldest GHC version found in the cabal file")
-      <**> simpleVersioner (showVersion version)
+      <**> simpleVersioner (showVersion Paths_get_tested.version)
 
 runOptions :: Options -> Eff [Console, FileSystem, Error ProcessingError, IOE] ByteString
 runOptions options = do
@@ -70,10 +70,25 @@ runOptions options = do
         processOSFlag MacOS options.macosFlag options.macosVersion
           <> processOSFlag Ubuntu options.ubuntuFlag options.ubuntuVersion
           <> processOSFlag Windows options.windowsFlag options.windowsVersion
+      isOldestCompiler =
+        if Vector.null selectedCompilers
+          then const False
+          else \version -> version == Vector.minimum selectedCompilers
+      isNewestCompiler =
+        if Vector.null selectedCompilers
+          then const False
+          else \version -> version == Vector.maximum selectedCompilers
+      makePlatformAndVersion os ghc =
+        PlatformAndVersion
+          { os
+          , ghc
+          , oldest = isOldestCompiler ghc
+          , newest = isNewestCompiler ghc
+          }
   if null filteredList
     then pure $ Aeson.encode selectedCompilers
     else do
-      let include = PlatformAndVersion <$> filteredList <*> selectedCompilers
+      let include = makePlatformAndVersion <$> filteredList <*> selectedCompilers
       pure $ "matrix=" <> Aeson.encode (ActionMatrix include)
 
 withInfo :: Parser a -> String -> ParserInfo a
