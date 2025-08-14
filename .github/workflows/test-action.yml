@@ -61,3 +61,20 @@ jobs:
             echo "Is NOT executable"
             exit 1
           fi
+
+  test-setup-action-windows:
+    name: 'Test setup-get-tested action for Windows'
+    runs-on: windows-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Set up without options
+        id: setup
+        uses: ./setup-get-tested
+
+      - name: Set up with explicit directory
+        id: setup-with-directory
+        uses: ./setup-get-tested
+        with:
+          directory: "my-bin-dir"

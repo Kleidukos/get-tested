@@ -19,6 +19,7 @@ jobs:
           cabal-file: get-tested.cabal
           ubuntu-version: 'latest'
           macos-version: 'latest'
+          windows-version: 'latest'
           version: 0.1.7.0
   build:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
