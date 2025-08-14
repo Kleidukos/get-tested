@@ -62,6 +62,26 @@ jobs:
             exit 1
           fi
 
+  test-action-windows:
+    name: 'Test get-tested action for Windows'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Extract the tested GHC versions
+        id: create-matrix
+        uses: ./
+        with:
+          cabal-file: get-tested.cabal
+          ubuntu-version: 'latest'
+          macos-version: 'latest'
+
+      - name: Output matrix
+        shell: bash
+        run: |
+          jq '.' <<< '${{ steps.create-matrix.outputs.matrix }}'
+
   test-setup-action-windows:
     name: 'Test setup-get-tested action for Windows'
     runs-on: windows-latest
