@@ -25,39 +25,48 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-          tmpdir="$(mktemp -d "${RUNNER_TEMP}/setup-get-tested.XXXXXX")"
+        tmpdir="$(mktemp -d "${RUNNER_TEMP}/setup-get-tested.XXXXXX")"
 
-          # On Windows runners, convert D:\... to /d/...
-          case "$(uname | tr '[:upper:]' '[:lower:]')" in
-          msys*|mingw*|cygwin*)
-          tmpdir="$(cygpath -u "$tmpdir")"
-          directory_posix="$(cygpath -u "${{ inputs.directory }}")"
-          ;;
-          *)
-          directory_posix="${{ inputs.directory }}"
-          ;;
-          esac
+        os="$(uname | tr '[:upper:]' '[:lower:]')"
+        case "$os" in
+        msys*|mingw*|cygwin*)
+        # On Windows runners, convert D:\... to /d/...
+        tmpdir="$(cygpath -u "$tmpdir")"
+        directory_posix="$(cygpath -u "${{ inputs.directory }}")"
+        ;;
+        *)
+        directory_posix="${{ inputs.directory }}"
+        ;;
+        esac
 
-          trap "rm -rf ${tmpdir}" EXIT
+        trap "rm -rf ${tmpdir}" EXIT
+        if [[ "$os" == "darwin" ]]; then
+        pattern='get-tested-*-macOS-arm64.tar.gz'
+        else
+        pattern='get-tested-*-Linux-static-x86_64.tar.gz'
+        fi
+        echo 'chose '$archive' for ::'$os'::'
 
-          gh_release_flags=(
-          --repo Kleidukos/get-tested
-          --pattern 'get-tested-*-Linux-static-x86_64.tar.gz'
-          --output "${tmpdir}/get-tested.tar.gz"
-          )
+        trap "rm -rf ${tmpdir}" EXIT
 
-          if [[ "${{ inputs.version }}" != "" ]]; then
-          gh release download "v${{ inputs.version }}" "${gh_release_flags[@]}"
-          else
-          gh release download "${gh_release_flags[@]}"
-          fi
+        gh_release_flags=(
+        --repo Kleidukos/get-tested
+        --pattern "$pattern"
+        --output "${tmpdir}/get-tested.tar.gz"
+        )
 
-          mkdir -p "$directory_posix"
-          tar -xvzf "${tmpdir}/get-tested.tar.gz" -C "$directory_posix"
+        if [[ "${{ inputs.version }}" != "" ]]; then
+        gh release download "v${{ inputs.version }}" "${gh_release_flags[@]}"
+        else
+        gh release download "${gh_release_flags[@]}"
+        fi
 
-          path="${directory_posix}/get-tested"
-          chmod a+x "$path"
-          echo "path=${path}" >> "${GITHUB_OUTPUT}"
+        mkdir -p "$directory_posix"
+        tar -xvzf "${tmpdir}/get-tested.tar.gz" -C "$directory_posix"
+
+        path="${directory_posix}/get-tested"
+        chmod a+x "$path"
+        echo "path=${path}" >> "${GITHUB_OUTPUT}"
 
 branding:
   icon: 'list'

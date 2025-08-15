@@ -62,7 +62,7 @@ runs:
       #
       # See: https://github.com/actions/runner/issues/895
     - name: Set up get-tested
-      uses: Kleidukos/get-tested/setup-get-tested@5f873c05c435a1f50e4c5ce815d687c1bff3b93b
+      uses: webdevred/get-tested-intern/setup-get-tested@79bb8c79180288846b4280b2811877bdeb9770e1
       with:
         version: ${{ inputs.version }}
 
@@ -140,7 +140,17 @@ runs:
       id: set-matrix
       shell: bash
       run: |
-        ./get-tested $WINDOWS $MACOS $UBUNTU $RELATIVE_VERSION "${{ inputs.cabal-file }}" >> "$GITHUB_OUTPUT"
+        case "$(uname | tr '[:upper:]' '[:lower:]')" in
+          msys*|mingw*|cygwin*)
+          echo "Running in Windows -> use WSL"
+          wsl bash -c "./get-tested $WINDOWS $MACOS $UBUNTU $RELATIVE_VERSION ${{ inputs.cabal-file }}" >> "$GITHUB_OUTPUT"
+          ;;
+        *)
+          echo "Running on Linux/macOS -> run natively"
+          ./get-tested $WINDOWS $MACOS $UBUNTU $RELATIVE_VERSION "${{ inputs.cabal-file }}" >> "$GITHUB_OUTPUT"
+          ;;
+        esac
+
 
 branding:
   icon: 'list'
