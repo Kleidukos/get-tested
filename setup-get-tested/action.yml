@@ -30,29 +30,34 @@ runs:
         os="$(uname | tr '[:upper:]' '[:lower:]')"
         case "$os" in
         msys*|mingw*|cygwin*)
+        os="windows"
         # On Windows runners, convert D:\... to /d/...
         tmpdir="$(cygpath -u "$tmpdir")"
         directory_posix="$(cygpath -u "${{ inputs.directory }}")"
+        outfile="get-tested.zip"
         ;;
         *)
         directory_posix="${{ inputs.directory }}"
+        outfile="get-tested.tar.gz"
         ;;
         esac
 
         trap "rm -rf ${tmpdir}" EXIT
         if [[ "$os" == "darwin" ]]; then
-        pattern='get-tested-*-macOS-arm64.tar.gz'
+         pattern='get-tested-*-macOS-arm64.tar.gz'
+        elif [[ "$os" == "linux" ]]; then
+          pattern='get-tested-*-Linux-static-x86_64.tar.gz'
         else
-        pattern='get-tested-*-Linux-static-x86_64.tar.gz'
+          pattern='get-tested-*-Windows-x86_64.zip'
         fi
-        echo 'chose '$archive' for ::'$os'::'
+        echo 'chose '$pattern' for ::'$os'::'
 
         trap "rm -rf ${tmpdir}" EXIT
 
         gh_release_flags=(
         --repo Kleidukos/get-tested
         --pattern "$pattern"
-        --output "${tmpdir}/get-tested.tar.gz"
+        --output "${tmpdir}/${outfile}"
         )
 
         if [[ "${{ inputs.version }}" != "" ]]; then
@@ -62,7 +67,11 @@ runs:
         fi
 
         mkdir -p "$directory_posix"
-        tar -xvzf "${tmpdir}/get-tested.tar.gz" -C "$directory_posix"
+        if [[ "$os" == "windows" ]]; then
+          unzip -o "${tmpdir}/${outfile}" -d "$directory_posix"
+        else
+          tar -xvzf "${tmpdir}/${outfile}" -C "$directory_posix"
+        fi
 
         path="${directory_posix}/get-tested"
         chmod a+x "$path"
