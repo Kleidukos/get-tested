@@ -148,9 +148,9 @@ jobs:
       - name: Cache
         uses: actions/cache@v4
         with:
-          key: ${{ runner.os }}-ghc-${{ steps.setup-haskell.outputs.ghc-version }}-${{ hashFiles('**/plan.json') }}
+          key: ${{ runner.os }}-ghc-9.10.2-${{ hashFiles('**/plan.json') }}
           path: ${{ steps.setup-haskell.outputs.cabal-store }}
-          restore-keys: ${{ runner.os }}-ghc-${{ steps.setup-haskell.outputs.ghc-version }}
+          restore-keys: ${{ runner.os }}-ghc-9.10.2-
 
       - name: Build
         run: cabal build --project-file=cabal.static.project
@@ -246,37 +246,40 @@ jobs:
         echo "=== ./out contents ==="
         ls -lhR ./out || true
 
-    - name: Consolidate artifacts into release_files (unique names)
+    - name: Consolidate artifacts into release_files
       run: |
         set -eu
         mkdir -p release_files
         for p in ./out/*; do
-          if [ -d "$p" ]; then
-            artname=$(basename "$p")
-            for f in "$p"/*; do
-              if [ -f "$f" ]; then
-                base=$(basename "$f")
-                case "$artname" in
-                  *Windows*|*windows*)
-                    zip -j "release_files/${artname}.zip" "$f"
-                    ;;
-                  *Linux*|*linux*|*macOS*|*macos*)
-                    tar -czf "release_files/${artname}.tar.gz" -C "$(dirname "$f")" "$base"
-                    ;;
-                  *)
-                    cp "$f" "release_files/${artname}-${base}"
-                    ;;
-                esac
-              fi
-            done
-          elif [ -f "$p" ]; then
-            base=$(basename "$p")
-            cp "$p" "release_files/${base}"
-          fi
+        if [ -d "$p" ]; then
+          artname=$(basename "$p")
+          for f in "$p"/*; do
+            if [ -f "$f" ]; then
+              case "$artname" in
+                *Windows*|*windows*)
+                  cp "$f" "get-tested.exe"
+                  zip "release_files/${artname}.zip" "get-tested.exe"
+                  rm "get-tested.exe"
+                  ;;
+                *Linux*|*linux*|*macOS*|*macos*)
+                  cp "$f" "get-tested"
+                  tar -czf "release_files/${artname}.tar.gz" "get-tested"
+                  rm "get-tested"
+                  ;;
+                *)
+                  base=$(basename "$f")
+                  cp "$f" "release_files/${artname}-${base}"
+                  ;;
+              esac
+            fi
+          done
+        elif [ -f "$p" ]; then
+          base=$(basename "$p")
+          cp "$p" "release_files/${base}"
+        fi
         done
         echo "=== release_files contents ==="
         ls -lh release_files || true
-
 
     - name: Create GitHub Release (upload files)
       uses: softprops/action-gh-release@v2
