@@ -25,25 +25,56 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        tmpdir="$(mktemp --directory "${RUNNER_TEMP}/setup-get-tested.XXX")"
+        tmpdir="$(mktemp -d "${RUNNER_TEMP}/setup-get-tested.XXXXXX")"
+
+        os="$(uname | tr '[:upper:]' '[:lower:]')"
+        case "$os" in
+        msys*|mingw*|cygwin*)
+        os="windows"
+        # On Windows runners, convert D:\... to /d/...
+        tmpdir="$(cygpath -u "$tmpdir")"
+        directory_posix="$(cygpath -u "${{ inputs.directory }}")"
+        outfile="get-tested.zip"
+        ;;
+        *)
+        directory_posix="${{ inputs.directory }}"
+        outfile="get-tested.tar.gz"
+        ;;
+        esac
+
+        trap "rm -rf ${tmpdir}" EXIT
+        if [[ "$os" == "darwin" ]]; then
+         pattern='get-tested-*-macOS-arm64.tar.gz'
+        elif [[ "$os" == "linux" ]]; then
+          pattern='get-tested-*-Linux-static-x86_64.tar.gz'
+        else
+          pattern='get-tested-*-Windows-x86_64.zip'
+        fi
+        echo 'chose '$pattern' for ::'$os'::'
+
         trap "rm -rf ${tmpdir}" EXIT
 
         gh_release_flags=(
-          --repo Kleidukos/get-tested
-          --pattern 'get-tested-*-Linux-static-x86_64.tar.gz'
-          --output "${tmpdir}/get-tested.tar.gz"
-          )
+        --repo Kleidukos/get-tested
+        --pattern "$pattern"
+        --output "${tmpdir}/${outfile}"
+        )
 
         if [[ "${{ inputs.version }}" != "" ]]; then
-          gh release download "v${{ inputs.version }}" "${gh_release_flags[@]}"
+        gh release download "v${{ inputs.version }}" "${gh_release_flags[@]}"
         else
-          gh release download "${gh_release_flags[@]}"
+        gh release download "${gh_release_flags[@]}"
         fi
-        mkdir -p "${{ inputs.directory }}"
-        tar -x -v -z -f "${tmpdir}/get-tested.tar.gz" -C "${{ inputs.directory }}"
 
-        path="${{ inputs.directory }}/get-tested"
-        chmod a+x "${path}"
+        mkdir -p "$directory_posix"
+        if [[ "$os" == "windows" ]]; then
+          unzip -o "${tmpdir}/${outfile}" -d "$directory_posix"
+        else
+          tar -xvzf "${tmpdir}/${outfile}" -C "$directory_posix"
+        fi
+
+        path="${directory_posix}/get-tested"
+        chmod a+x "$path"
         echo "path=${path}" >> "${GITHUB_OUTPUT}"
 
 branding:
