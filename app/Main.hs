@@ -48,11 +48,11 @@ main = do
 
 saveOutput :: ByteString -> IO ()
 saveOutput json = do
-  maybeOutputFile <- lookupEnv "GITHUB_OUTPUT"
-  case maybeOutputFile of
-    Just outputFile ->
-      ByteString.writeFile outputFile (json <> "\n")
-    Nothing ->
+  lookupEnv "CI" >>= \case
+    Just _ -> lookupEnv "GITHUB_OUTPUT" >>= \case
+      Just outputFile ->
+        ByteString.writeFile outputFile (json <> "\n")
+    _ ->
       putStrLn $ ByteString.unpack json
 
 parseOptions :: Parser Options
