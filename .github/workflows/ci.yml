@@ -221,14 +221,11 @@ jobs:
         pattern: 'get-tested*'
         path: ./out
 
-    - name: Debug list ./out (downloaded structure)
-      run: |
-        echo "=== ./out contents ==="
-        ls -lhR ./out || true
-
     - name: Consolidate artifacts into release_files
       run: |
         set -eu
+        echo "=== ./out contents ==="
+        ls -lhR ./out || true
         mkdir -p release_files
         for p in ./out/*; do
         if [ -d "$p" ]; then
