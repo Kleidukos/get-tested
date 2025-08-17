@@ -264,7 +264,7 @@ jobs:
     - name: Create GitHub Release (upload files)
       uses: softprops/action-gh-release@v2
       with:
-        draft: true
+        prerelease: true
         files: 'release_files/*'
         tag_name: get-tested-head
         fail_on_unmatched_files: true
