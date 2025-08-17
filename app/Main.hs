@@ -49,9 +49,10 @@ main = do
 saveOutput :: ByteString -> IO ()
 saveOutput json = do
   lookupEnv "CI" >>= \case
-    Just _ -> lookupEnv "GITHUB_OUTPUT" >>= \case
-      Just outputFile ->
-        ByteString.writeFile outputFile (json <> "\n")
+    Just _ ->
+      lookupEnv "GITHUB_OUTPUT" >>= \case
+        Just outputFile ->
+          ByteString.writeFile outputFile (json <> "\n")
     _ ->
       putStrLn $ ByteString.unpack json
 
