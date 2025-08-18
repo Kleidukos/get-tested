@@ -34,7 +34,7 @@ jobs:
           sudo apt install upx-ucl
 
       - name: Checkout base repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Haskell
         id: setup-haskell
@@ -116,7 +116,7 @@ jobs:
                 musl-dev ncurses-dev perl pkgconfig \
                 sudo tar upx xz zlib-dev zlib-static
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: haskell-actions/setup@v2
         id: setup-haskell
