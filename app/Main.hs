@@ -53,8 +53,10 @@ saveOutput json = do
       lookupEnv "GITHUB_OUTPUT" >>= \case
         Just outputFile ->
           ByteString.writeFile outputFile (json <> "\n")
-    _ ->
-      putStrLn $ ByteString.unpack json
+        _ -> printToStdout
+    _ -> printToStdout
+  where
+    printToStdout = putStrLn $ ByteString.unpack json
 
 parseOptions :: Parser Options
 parseOptions =
