@@ -19,15 +19,15 @@ jobs:
           cabal-file: get-tested.cabal
           ubuntu-version: 'latest'
           macos-version: 'latest'
+          windows-version: 'latest'
           version: 0.1.7.0
   build:
-    name: ${{ matrix.ghc }} on ${{ matrix.os }}
+    name: "${{ matrix.ghc }} on ${{ matrix.os }}"
     needs: generate-matrix
     runs-on: ${{ matrix.os }}
     strategy:
       matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
     steps:
-
       - name: "Install tools"
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
@@ -44,6 +44,7 @@ jobs:
           cabal-version: "latest"
 
       - name: Configure
+        shell: bash
         run: |
           ARCHITECTURE=$(uname -m)
           echo "ARCH=$ARCHITECTURE" >> $GITHUB_ENV
@@ -64,7 +65,7 @@ jobs:
 
       - name: Test
         run: |
-          cabal test --project-file=cabal.release.project --test-options "--xml=../get-tested/${{ env.REPORT_NAME }}" all
+          cabal test --project-file=cabal.release.project --test-options "--xml=./${{ env.REPORT_NAME }}" all
 
       - name: Upload the test report
         uses: actions/upload-artifact@v4
@@ -74,6 +75,7 @@ jobs:
           path: ${{ env.REPORT_NAME }}
 
       - name: Install
+        shell: bash
         run: |
           bin=$(cabal -v0 --project-file=cabal.release.project list-bin get-tested)
           mkdir distribution
@@ -86,6 +88,7 @@ jobs:
             upx -9 distribution/get-tested
 
       - name: Package the get-tested executable
+        shell: bash
         run: |
           executable=distribution/get-tested
           ARTIFACT_NAME="get-tested-head-${{ runner.os }}-${{ env.ARCH }}"
@@ -142,7 +145,7 @@ jobs:
 
       - name: Test
         run: |
-          cabal test --project-file=cabal.static.project --test-options "--xml=../get-tested/${{ env.REPORT_NAME }}" all
+          cabal test --project-file=cabal.static.project --test-options "--xml=./${{ env.REPORT_NAME }}" all
 
       - name: Upload the test report
         uses: actions/upload-artifact@v4
@@ -209,15 +212,56 @@ jobs:
       contents: write
 
     steps:
-    - uses: actions/download-artifact@v5
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Download all get-tested artifacts (each into its own folder)
+      uses: actions/download-artifact@v5
       with:
-        pattern: get-tested-*
-        merge-multiple: true
+        pattern: 'get-tested*'
         path: ./out
 
-    - name: Pre-release
+    - name: Consolidate artifacts into release_files
+      run: |
+        set -eu
+        echo "=== ./out contents ==="
+        ls -lhR ./out || true
+        mkdir -p release_files
+        for p in ./out/*; do
+        if [ -d "$p" ]; then
+          artname=$(basename "$p")
+          for f in "$p"/*; do
+            if [ -f "$f" ]; then
+              case "$artname" in
+                *Windows*|*windows*)
+                  cp "$f" "get-tested.exe"
+                  zip "release_files/${artname}.zip" "get-tested.exe"
+                  rm "get-tested.exe"
+                  ;;
+                *Linux*|*linux*|*macOS*|*macos*)
+                  cp "$f" "get-tested"
+                  tar -czf "release_files/${artname}.tar.gz" "get-tested"
+                  rm "get-tested"
+                  ;;
+                *)
+                  base=$(basename "$f")
+                  cp "$f" "release_files/${artname}-${base}"
+                  ;;
+              esac
+            fi
+          done
+        elif [ -f "$p" ]; then
+          base=$(basename "$p")
+          cp "$p" "release_files/${base}"
+        fi
+        done
+        echo "=== release_files contents ==="
+        ls -lh release_files || true
+
+    - name: Create GitHub Release (upload files)
       uses: softprops/action-gh-release@v2
       with:
         prerelease: true
-        files: ./out/*
+        files: 'release_files/*'
         tag_name: get-tested-head
+        fail_on_unmatched_files: true

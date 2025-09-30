@@ -62,7 +62,7 @@ runs:
       #
       # See: https://github.com/actions/runner/issues/895
     - name: Set up get-tested
-      uses: Kleidukos/get-tested/setup-get-tested@5f873c05c435a1f50e4c5ce815d687c1bff3b93b
+      uses: Kleidukos/get-tested/setup-get-tested@d2eacc704f62c83d3e9cb32c362a6a3f3fb3e723
       with:
         version: ${{ inputs.version }}
 
@@ -140,7 +140,8 @@ runs:
       id: set-matrix
       shell: bash
       run: |
-        ./get-tested $WINDOWS $MACOS $UBUNTU $RELATIVE_VERSION "${{ inputs.cabal-file }}" >> "$GITHUB_OUTPUT"
+        ./get-tested $WINDOWS $MACOS $UBUNTU $RELATIVE_VERSION "${{ inputs.cabal-file }}"
+
 
 branding:
   icon: 'list'

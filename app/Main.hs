@@ -25,13 +25,14 @@ import GetTested.CLI.Types
 import GetTested.Extract
 import GetTested.Types
 import Paths_get_tested qualified
+import System.Environment (lookupEnv)
 
 main :: IO ()
 main = do
   result <- execParser (parseOptions `withInfo` "Generate a test matrix from the tested-with stanza of your cabal file")
   processingResult <- runCLIEff $ runOptions result
   case processingResult of
-    Right json -> putStrLn $ ByteString.unpack json
+    Right json -> saveOutput json
     Left (CabalFileNotFound path) -> do
       putStrLn $ "get-tested: Could not find cabal file at path " <> path
       exitFailure
@@ -44,6 +45,18 @@ main = do
     Left (IncompatibleOptions opt1 opt2) -> do
       putStrLn $ Text.unpack $ "get-tested: Incompatible options: " <> opt1 <> " and " <> opt2 <> " cannot be passed simultaneously."
       exitFailure
+
+saveOutput :: ByteString -> IO ()
+saveOutput json = do
+  lookupEnv "CI" >>= \case
+    Just _ ->
+      lookupEnv "GITHUB_OUTPUT" >>= \case
+        Just outputFile ->
+          ByteString.writeFile outputFile (json <> "\n")
+        _ -> printToStdout
+    _ -> printToStdout
+  where
+    printToStdout = putStrLn $ ByteString.unpack json
 
 parseOptions :: Parser Options
 parseOptions =

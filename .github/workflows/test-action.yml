@@ -8,9 +8,12 @@ on:
     branches: ['main']
 
 jobs:
-  test-action:
-    name: 'Test get-tested action'
-    runs-on: ubuntu-latest
+  test-actions:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v5
@@ -24,15 +27,7 @@ jobs:
           macos-version: 'latest'
 
       - name: Output matrix
-        run: |
-          jq '.' <<< '${{ steps.create-matrix.outputs.matrix }}'
-
-  test-setup-action:
-    name: 'Test setup-get-tested action'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v5
+        run: jq '.' <<< '${{ steps.create-matrix.outputs.matrix }}'
 
       - name: Set up without options
         id: setup
@@ -40,11 +35,14 @@ jobs:
 
       - name: Set up with explicit directory
         id: setup-with-directory
+        continue-on-error: ${{ matrix.os == 'windows-latest' }}
         uses: ./setup-get-tested
         with:
           directory: "my-bin-dir"
 
       - name: Output results
+        shell: bash
+        if: ${{ matrix.os != 'windows-latest' }}
         run: |
           echo "${{ steps.setup.outputs.path }}"
           if [[ -x "${{ steps.setup.outputs.path }}" ]]; then
