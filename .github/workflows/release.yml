@@ -233,7 +233,7 @@ jobs:
       contents: write
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Download all get-tested artifacts (each into its own folder)
       uses: actions/download-artifact@v5
