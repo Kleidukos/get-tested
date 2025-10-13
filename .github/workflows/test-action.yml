@@ -27,6 +27,7 @@ jobs:
           macos-version: 'latest'
 
       - name: Output matrix
+        shell: bash
         run: jq '.' <<< '${{ steps.create-matrix.outputs.matrix }}'
 
       - name: Set up without options

@@ -59,11 +59,12 @@ runs:
         --pattern "$pattern"
         --output "${tmpdir}/${outfile}"
         )
-
-        if [[ "${{ inputs.version }}" != "" ]]; then
-        gh release download "v${{ inputs.version }}" "${gh_release_flags[@]}"
+        if [[ "${{ inputs.version }}" == "get-tested-head" ]] || [[ "$os" == "windows" ]]; then
+          gh release download "get-tested-head" "${gh_release_flags[@]}"
+        elif [[ "${{ inputs.version }}" != "" ]]; then
+          gh release download "v${{ inputs.version }}" "${gh_release_flags[@]}"
         else
-        gh release download "${gh_release_flags[@]}"
+          gh release download "${gh_release_flags[@]}"
         fi
 
         mkdir -p "$directory_posix"
