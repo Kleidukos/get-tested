@@ -71,7 +71,7 @@ jobs:
           cabal test --project-file=cabal.release.project --test-options "--xml=./${{ env.REPORT_NAME }}" all
 
       - name: Upload the test report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: success() || failure() # always run even if the previous step fails
         with:
           name: ${{ env.REPORT_NAME }}
@@ -103,7 +103,7 @@ jobs:
           echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
 
       - name: Upload the get-tested executable
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: distribution/get-tested
@@ -160,7 +160,7 @@ jobs:
           cabal test --project-file=cabal.static.project --test-options "--xml=./${{ env.REPORT_NAME }}" all
 
       - name: Upload the test report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: success() || failure() # always run even if the previous step fails
         with:
           name: ${{ env.REPORT_NAME }}
@@ -193,7 +193,7 @@ jobs:
           mv ./distribution/get-tested ${ARTIFACT_NAME}
 
       - name: Upload get-tested executable to workflow artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.ARTIFACT_NAME }}
