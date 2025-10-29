@@ -50,7 +50,7 @@ runs:
         else
           pattern='get-tested-*-Windows-x86_64.zip'
         fi
-        echo 'chose '$pattern' for ::'$os'::'
+        echo '::debug::chose '$pattern' for ::'$os'::'
 
         trap "rm -rf ${tmpdir}" EXIT
 
@@ -69,9 +69,9 @@ runs:
 
         mkdir -p "$directory_posix"
         if [[ "$os" == "windows" ]]; then
-          unzip -o "${tmpdir}/${outfile}" -d "$directory_posix"
+          unzip -q -o "${tmpdir}/${outfile}" -d "$directory_posix"
         else
-          tar -xvzf "${tmpdir}/${outfile}" -C "$directory_posix"
+          tar -xzf "${tmpdir}/${outfile}" -C "$directory_posix"
         fi
 
         path="${directory_posix}/get-tested"
