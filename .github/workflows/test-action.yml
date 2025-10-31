@@ -36,7 +36,6 @@ jobs:
 
       - name: Set up with explicit directory
         id: setup-with-directory
-        continue-on-error: ${{ matrix.os == 'windows-latest' }}
         uses: ./setup-get-tested
         with:
           directory: "my-bin-dir"
