@@ -49,8 +49,6 @@ runs:
         else
           requested_old_version=true
         fi
-        echo $requested_version
-        echo $requested_old_version
         trap "rm -rf ${tmpdir}" EXIT
         if [[ "$os" == "darwin" ]]; then
          pattern='get-tested-*-macOS-arm64.tar.gz'
