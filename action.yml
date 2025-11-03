@@ -62,7 +62,7 @@ runs:
       #
       # See: https://github.com/actions/runner/issues/895
     - name: Set up get-tested
-      uses: Kleidukos/get-tested/setup-get-tested@6874acc717e82bd0b834a6d75d29a557879a74ef
+      uses: Kleidukos/get-tested/setup-get-tested@de5e9af5a304e1a07e9d3f367df7a69797ada908
       with:
         version: ${{ inputs.version }}
 
@@ -140,7 +140,13 @@ runs:
       id: set-matrix
       shell: bash
       run: |
-        ./get-tested $WINDOWS $MACOS $UBUNTU $RELATIVE_VERSION "${{ inputs.cabal-file }}"
+        requested_version="${{ inputs.version }}"
+        minium_modern_version="0.1.9.0"
+        if [[ "$requested_version" == "" ]] || [[ "$requested_version" == "get-tested-head" ]] || dpkg --compare-versions "$requested_version" ge "$minium_modern_version"; then
+          ./get-tested $WINDOWS $MACOS $UBUNTU $RELATIVE_VERSION "${{ inputs.cabal-file }}"
+        else
+          ./get-tested $WINDOWS $MACOS $UBUNTU $RELATIVE_VERSION "${{ inputs.cabal-file }}" >> "$GITHUB_OUTPUT"
+        fi
 
 
 branding:

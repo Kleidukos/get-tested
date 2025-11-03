@@ -44,10 +44,10 @@ runs:
 
         requested_version="${{ inputs.version }}"
         minium_modern_version="0.1.7.1"
-        if [[ "$requested_version" != "" ]] && dpkg --compare-versions "$requested_version" lt "$minium_modern_version"; then
-          requested_old_version=true
-        else
+        if [[ "$requested_version" == "" ]] || [[ "$requested_version" == "get-tested-head" ]] || dpkg --compare-versions "$requested_version" ge "$minium_modern_version"; then
           requested_old_version=false
+        else
+          requested_old_version=true
         fi
         echo $requested_version
         echo $requested_old_version
