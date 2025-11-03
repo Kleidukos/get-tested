@@ -42,9 +42,20 @@ runs:
         ;;
         esac
 
+        requested_version="${{ inputs.version }}"
+        minium_modern_version="0.1.7.1"
+        if [[ "$requested_version" != "" ]] && dpkg --compare-versions "$requested_version" lt "$minium_modern_version"; then
+          requested_old_version=true
+        else
+          requested_old_version=false
+        fi
+        echo $requested_version
+        echo $requested_old_version
         trap "rm -rf ${tmpdir}" EXIT
         if [[ "$os" == "darwin" ]]; then
          pattern='get-tested-*-macOS-arm64.tar.gz'
+        elif [[ "$os" == "linux" ]] && [[ "$requested_old_version" == true ]]; then
+          pattern='get-tested-*-linux-amd64'
         elif [[ "$os" == "linux" ]]; then
           pattern='get-tested-*-Linux-static-x86_64.tar.gz'
         else
@@ -59,10 +70,10 @@ runs:
         --pattern "$pattern"
         --output "${tmpdir}/${outfile}"
         )
-        if [[ "${{ inputs.version }}" == "get-tested-head" ]]; then
+        if [[ "$requested_version" == "get-tested-head" ]]; then
           gh release download "get-tested-head" "${gh_release_flags[@]}"
-        elif [[ "${{ inputs.version }}" != "" ]]; then
-          gh release download "v${{ inputs.version }}" "${gh_release_flags[@]}"
+        elif [[ "$requested_version" != "" ]]; then
+          gh release download "v${requested_version}" "${gh_release_flags[@]}"
         else
           gh release download "${gh_release_flags[@]}"
         fi
@@ -70,6 +81,8 @@ runs:
         mkdir -p "$directory_posix"
         if [[ "$os" == "windows" ]]; then
           unzip -q -o "${tmpdir}/${outfile}" -d "$directory_posix"
+        elif [[ "$os" == "linux" ]] && [[ $requested_old_version == true ]]; then
+          cp "${tmpdir}/${outfile}" "$directory_posix/get-tested"
         else
           tar -xzf "${tmpdir}/${outfile}" -C "$directory_posix"
         fi

@@ -3,9 +3,8 @@ name: Test actions pipeline
 on:
   pull_request:
     branches: ['main']
-
   push:
-    branches: ['main']
+    branches: ['main','make-setup-backwards-compatible-with-old-naming-scheme']
 
 jobs:
   test-actions:
@@ -39,6 +38,13 @@ jobs:
         uses: ./setup-get-tested
         with:
           directory: "my-bin-dir"
+
+      - name: Set up with a version that uses the older naming schme
+        uses: ./setup-get-tested
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        with:
+          version: 0.1.7.0
+          directory: "my-other-bin-dir"
 
       - name: Output results
         shell: bash
