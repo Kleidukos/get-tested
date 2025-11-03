@@ -25,7 +25,7 @@ jobs:
           ubuntu-version: 'latest'
           macos-version: 'latest'
 
-      - name: Set up with a version that uses the older naming schme
+      - name: Extract the tested GHC version with older version
         uses: ./
         id: old-naming-scheme
         if: ${{ matrix.os == 'ubuntu-latest' }}
