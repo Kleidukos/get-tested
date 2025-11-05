@@ -69,6 +69,15 @@ The inputs of the action (under the `with:` stanza) are the following:
    _Required:_ false \
    _Default:_ false
 
+**Important:**
+- You **must** specify at least one platform to run tests.
+- This means at least one of the following six inputs must be provided:
+  - `windows` or `windows-version`
+  - `macos` or `macos-version`
+  - `ubuntu` or `ubuntu-version`
+ - Deprecated flags (`windows`, `macos`, `ubuntu`) use the latest version.
+ - If both a deprecated flag and an explicit version are provided, the explicit version **takes priority**.
+
 See below for an example:
 
 ```yaml
