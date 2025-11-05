@@ -96,9 +96,7 @@ runOptions options = do
           , newest = isNewestCompiler ghc
           }
   if null filteredList
-    then do
-      Console.putStrLn "get-tested: At least one runner needed, please check the README.md in the get-tested repo"
-      pure $ Aeson.encode selectedCompilers
+    then pure $ Aeson.encode selectedCompilers
     else do
       let include = makePlatformAndVersion <$> filteredList <*> selectedCompilers
       pure $ "matrix=" <> Aeson.encode (ActionMatrix include)

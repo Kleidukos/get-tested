@@ -142,6 +142,10 @@ runs:
       run: |
         requested_version="${{ inputs.version }}"
         minium_modern_version="0.1.9.0"
+        if [[ "$WINDOWS" == "" ]] && [[ "$MACOS" == "" ]] && [[ "$UBUNTU" == "" ]]; then
+           echo "At least one runner needed, please check the README.md in the get-tested repo"
+           exit 1
+        fi
         if [[ "$requested_version" == "" ]] || [[ "$requested_version" == "get-tested-head" ]] || dpkg --compare-versions "$requested_version" ge "$minium_modern_version"; then
           ./get-tested $WINDOWS $MACOS $UBUNTU $RELATIVE_VERSION "${{ inputs.cabal-file }}"
         else
