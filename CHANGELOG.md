@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 0.1.9.1 -- 2025-11-10
+
+Move runner validation to GitHub Action https://github.com/Kleidukos/get-tested/pull/85
+Merge pull request #84 from webdevred/more-backwards-compatibility-fixes
+Make setup-get-tested backwards compatible with older naming scheme (#81)
+Merge pull request #80 from webdevred/remove-windows-check
+
 ## 0.1.9.0 -- 2025-10-29
 
 * Require `text-display >=1` and updated dependency bounds by @mmhat in https://github.com/Kleidukos/get-tested/pull/66

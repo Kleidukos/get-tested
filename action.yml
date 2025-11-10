@@ -62,7 +62,7 @@ runs:
       #
       # See: https://github.com/actions/runner/issues/895
     - name: Set up get-tested
-      uses: Kleidukos/get-tested/setup-get-tested@7c81839e4e72c1124c2de9e1dbf364c513e78afb
+      uses: Kleidukos/get-tested/setup-get-tested@d8562f44cf524ed3f4d17011321e978d0f89d4a3
       with:
         version: ${{ inputs.version }}
 
