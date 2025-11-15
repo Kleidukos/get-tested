@@ -90,12 +90,12 @@ jobs:
     steps:
       - name: Extract the tested GHC versions
         id: set-matrix
-        uses: kleidukos/get-tested@v0.1.7.1
+        uses: kleidukos/get-tested@v0.1.9.1
         with:
           cabal-file: get-tested.cabal
           ubuntu-version: "latest"
           macos-version: "latest"
-          version: 0.1.7.1
+          version: 0.1.9.1
   tests:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
     needs: generate-matrix

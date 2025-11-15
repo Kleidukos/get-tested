@@ -2,10 +2,9 @@
 
 ## 0.1.9.1 -- 2025-11-10
 
-Move runner validation to GitHub Action https://github.com/Kleidukos/get-tested/pull/85
-Merge pull request #84 from webdevred/more-backwards-compatibility-fixes
-Make setup-get-tested backwards compatible with older naming scheme (#81)
-Merge pull request #80 from webdevred/remove-windows-check
+* Added a message to the README.md about needing to choose at least one OS by @webdevred https://github.com/Kleidukos/get-tested/pull/85
+* Backwards compatibility changes for v0.1.7.1 by @webdevred https://github.com/Kleidukos/get-tested/pull/84
+* Make setup-get-tested backwards compatible with older naming scheme which was used before v0.1.7.0 by @webdevred https://github.com/Kleidukos/get-tested/pull/81
 
 ## 0.1.9.0 -- 2025-10-29
 
