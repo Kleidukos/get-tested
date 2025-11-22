@@ -62,95 +62,22 @@ runs:
       #
       # See: https://github.com/actions/runner/issues/895
     - name: Set up get-tested
-      uses: Kleidukos/get-tested/setup-get-tested@d8562f44cf524ed3f4d17011321e978d0f89d4a3
+      uses: Kleidukos/get-tested/setup-get-tested@731dd342038b2371fe12eccb5a934f51910fef14
       with:
         version: ${{ inputs.version }}
 
-    - name: Set up Windows options
+    - name: Parse the options and run the get-tested binary
       shell: bash
-      run: |
-        echo "::debug::windows: ${{ inputs.windows-version }}"
-        if [[ "${{ inputs.windows-version }}" != "" ]]
-        then
-          echo "::debug::Windows explicit enabled: ${{ inputs.windows-version }}"
-          echo "WINDOWS=--windows-version=${{ inputs.windows-version }}" >> $GITHUB_ENV
-        elif [[ "${{ inputs.windows }}" == "true" ]]
-        then
-          echo "::warning title=Legacy option `windows`::Windows fallback enabled: ${{ inputs.windows }}"
-          echo "WINDOWS=--windows" >> $GITHUB_ENV
-        else echo "WINDOWS=" >> $GITHUB_ENV
-        fi
-
-
-    - name: Set up macOS options
-      shell: bash
-      run: |
-        echo "::debug::macOS: ${{ inputs.macos-version }}"
-        if [[ "${{ inputs.macos-version }}" != "" ]]
-        then
-          echo "::debug::macOS explicit version enabled: ${{ inputs.macos-version }}"
-          echo "MACOS=--macos-version=${{ inputs.macos-version }}" >> $GITHUB_ENV
-        elif [[ "${{ inputs.macos }}" == "true" ]]
-        then
-          echo "::warning title=Legacy option `macos`::macOS fallback enabled: ${{ inputs.macos }}"
-          echo "MACOS=--macos" >> $GITHUB_ENV
-        else echo "MACOS=" >> $GITHUB_ENV
-        fi
-
-    - name: Set up Ubuntu options
-      shell: bash
-      run: |
-        echo "::debug::ubuntu: ${{ inputs.ubuntu-version }}"
-        if [[ "${{ inputs.ubuntu-version }}" != "" ]]
-        then
-          echo "::debug::Ubuntu explicit version enabled: ${{ inputs.ubuntu-version }}"
-          echo "UBUNTU=--ubuntu-version=${{ inputs.ubuntu-version }}" >> "$GITHUB_ENV"
-        elif [[ "${{ inputs.ubuntu }}" == "true" ]]
-        then
-          echo "::warning title=Legacy option `ubuntu`::Ubuntu fallback enabled: ${{ inputs.ubuntu }}"
-          echo "UBUNTU=--ubuntu" >> $GITHUB_ENV
-        else echo "UBUNTU=" >> $GITHUB_ENV
-        fi
- 
-    - name: Set up `oldest` and `newest` options
-      shell: bash
-      run: |
-        echo "::debug::Is --newest enabled: ${{ inputs.newest }}"
-        echo "::debug::Is --oldest enabled: ${{ inputs.oldest }}"
-
-        if [[ "${{ inputs.oldest }}" == "true" && "${{ inputs.newest }}" == "true" ]]; then
-          echo "::error title=Incompatible options::You cannot use the 'oldest' and 'newest' options together!"
-          exit 1
-        fi
-
-        if [[ "${{ inputs.oldest }}" == "true" ]]
-        then
-          echo "::debug::oldest version enabled"
-          echo "RELATIVE_VERSION=--oldest" >> "$GITHUB_ENV"
-        elif [[ "${{ inputs.newest }}" == "true" ]]
-        then
-          echo "::debug::newest version enabled"
-          echo "RELATIVE_VERSION=--newest" >> "$GITHUB_ENV"
-        else
-          echo "::debug::No relative version selected"
-        fi
-          
-
-    - name: Extract the tested GHC versions
       id: set-matrix
-      shell: bash
-      run: |
-        requested_version="${{ inputs.version }}"
-        minium_modern_version="0.1.9.0"
-        if [[ "$WINDOWS" == "" ]] && [[ "$MACOS" == "" ]] && [[ "$UBUNTU" == "" ]]; then
-           echo "At least one runner needed, please check the README.md in the get-tested repo"
-           exit 1
-        fi
-        if [[ "$requested_version" == "" ]] || [[ "$requested_version" == "get-tested-head" ]] || dpkg --compare-versions "$requested_version" ge "$minium_modern_version"; then
-          ./get-tested $WINDOWS $MACOS $UBUNTU $RELATIVE_VERSION "${{ inputs.cabal-file }}"
-        else
-          ./get-tested $WINDOWS $MACOS $UBUNTU $RELATIVE_VERSION "${{ inputs.cabal-file }}" >> "$GITHUB_OUTPUT"
-        fi
+      run: bash ./action.sh
+      env:
+        cabal_file: ${{ inputs.cabal-file }}
+        windows_version: ${{ inputs.windows-version }}
+        macos_version: ${{ inputs.macos-version }}
+        ubuntu_version: ${{ inputs.ubuntu-version }}
+        newest: ${{ inputs.newest }}
+        oldest: ${{ inputs.oldest }}
+        requested_version: ${{ inputs.version }}
 
 
 branding:
