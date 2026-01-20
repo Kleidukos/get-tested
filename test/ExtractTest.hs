@@ -22,11 +22,11 @@ testFilteringNewestCompiler = do
         Options
           { path = "./test/fixtures/one.cabal"
           , macosFlag = False
-          , macosVersion = Nothing
+          , macosVersion = Vector.empty
           , ubuntuFlag = False
-          , ubuntuVersion = Just "latest"
+          , ubuntuVersion = Vector.singleton "latest"
           , windowsFlag = False
-          , windowsVersion = Nothing
+          , windowsVersion = Vector.empty
           , newest = True
           , oldest = False
           }
@@ -45,11 +45,11 @@ testFilteringOldestCompiler = do
         Options
           { path = "./test/fixtures/one.cabal"
           , macosFlag = False
-          , macosVersion = Nothing
+          , macosVersion = Vector.empty
           , ubuntuFlag = False
-          , ubuntuVersion = Just "latest"
+          , ubuntuVersion = Vector.singleton "latest"
           , windowsFlag = False
-          , windowsVersion = Nothing
+          , windowsVersion = Vector.empty
           , newest = False
           , oldest = True
           }

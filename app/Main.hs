@@ -60,11 +60,11 @@ parseOptions =
   Options
     <$> argument str (metavar "FILE")
     <*> switch (long "macos" <> help "(legacy) Enable the macOS runner's latest version")
-    <*> optional (strOption (long "macos-version" <> metavar "VERSION" <> help "Enable the macOS runner with the selected version"))
+    <*> (\p -> Vector.fromList <$> many p) (strOption (long "macos-version" <> metavar "VERSION" <> help "Enable the macOS runner with the selected version"))
     <*> switch (long "ubuntu" <> help "(legacy) Enable the Ubuntu runner's latest version")
-    <*> optional (strOption (long "ubuntu-version" <> metavar "VERSION" <> help "Enable the Ubuntu runner with the selected version"))
+    <*> (\p -> Vector.fromList <$> many p) (strOption (long "ubuntu-version" <> metavar "VERSION" <> help "Enable the Ubuntu runner with the selected version"))
     <*> switch (long "windows" <> help "(legacy) Enable the Windows runner's latest version")
-    <*> optional (strOption (long "windows-version" <> metavar "VERSION" <> help "Enable the Windows runner with the selected version"))
+    <*> (\p -> Vector.fromList <$> many p) (strOption (long "windows-version" <> metavar "VERSION" <> help "Enable the Windows runner with the selected version"))
     <*> switch (long "newest" <> help "Enable only the newest GHC version found in the cabal file")
     <*> switch (long "oldest" <> help "Enable only the oldest GHC version found in the cabal file")
       <**> simpleVersioner (showVersion Paths_get_tested.version)
@@ -109,16 +109,17 @@ processOSFlag
   -- ^ OS flag we're processing
   -> Bool
   -- ^ legacy fallback
-  -> Maybe Text
-  -- ^ explicit version
   -> Vector Text
-processOSFlag runnerOS legacyFallback mExplicitVersion =
-  case mExplicitVersion of
-    Just explicitVersion -> Vector.singleton (display runnerOS <> "-" <> explicitVersion)
-    Nothing ->
+  -- ^ explicit versions
+  -> Vector Text
+processOSFlag runnerOS legacyFallback explicitVersions =
+  if Vector.null explicitVersions
+    then
       if legacyFallback
         then Vector.singleton $ display runnerOS <> "-latest"
         else Vector.empty
+    else
+      Vector.map (\v -> display runnerOS <> "-" <> v) explicitVersions
 
 checkIncompatibleRelativeOptions
   :: (Error ProcessingError :> es)
