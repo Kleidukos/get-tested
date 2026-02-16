@@ -34,6 +34,13 @@ jobs:
           cabal-file: get-tested.cabal
           ubuntu-version: 'latest'
 
+      - name: Extract the tested GHC versions with multiple runner versions
+        id: multiple-runner-versions
+        uses: ./
+        with:
+          cabal-file: get-tested.cabal
+          ubuntu-version: '18.04,latest'
+
       - name: Output matrix
         shell: bash
         run: jq '.' <<< '${{ steps.create-matrix.outputs.matrix }}'
@@ -42,6 +49,10 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run:
           jq '.' <<< '${{ steps.old-naming-scheme.outputs.matrix }}'
+
+      - name: Output matrix for multiple runner versions
+        shell: bash
+        run: jq '.' <<< '${{ steps.multiple-runner-versions.outputs.matrix }}'
 
       - name: Set up without options
         id: setup
