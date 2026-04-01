@@ -79,8 +79,8 @@ runs:
         if [[ -n "$versions" ]]; then
         IFS=',' read -ra arr <<< "$versions"
         for v in "${arr[@]}"; do
-          v="${v## }"
-          v="${v%% }"
+          v="${v#"${v%%[![:space:]]*}"}"
+          v="${v%"${v##*[![:space:]]}"}"
           result+=" $flag $v"
         done
         elif [[ "$legacy" == "true" ]]; then
