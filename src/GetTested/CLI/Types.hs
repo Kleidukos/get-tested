@@ -1,15 +1,16 @@
 module GetTested.CLI.Types where
 
 import Data.Text (Text)
+import Data.Vector (Vector)
 
 data Options = Options
   { path :: FilePath
   , macosFlag :: Bool
-  , macosVersion :: Maybe Text
+  , macosVersion :: Vector Text
   , ubuntuFlag :: Bool
-  , ubuntuVersion :: Maybe Text
+  , ubuntuVersion :: Vector Text
   , windowsFlag :: Bool
-  , windowsVersion :: Maybe Text
+  , windowsVersion :: Vector Text
   , newest :: Bool
   , oldest :: Bool
   }

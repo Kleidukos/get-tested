@@ -66,52 +66,34 @@ runs:
       with:
         version: ${{ inputs.version }}
 
-    - name: Set up Windows options
+    - name: Set up OS options
       shell: bash
       run: |
-        echo "::debug::windows: ${{ inputs.windows-version }}"
-        if [[ "${{ inputs.windows-version }}" != "" ]]
-        then
-          echo "::debug::Windows explicit enabled: ${{ inputs.windows-version }}"
-          echo "WINDOWS=--windows-version=${{ inputs.windows-version }}" >> $GITHUB_ENV
-        elif [[ "${{ inputs.windows }}" == "true" ]]
-        then
-          echo "::warning title=Legacy option `windows`::Windows fallback enabled: ${{ inputs.windows }}"
-          echo "WINDOWS=--windows" >> $GITHUB_ENV
-        else echo "WINDOWS=" >> $GITHUB_ENV
+        set_versions() {
+        local name="$1"        # UBUNTU / WINDOWS / MACOS
+        local flag="$2"        # --ubuntu-version
+        local versions="$3"    # "latest,18.04"
+        local legacy="$4"      # true/false
+        local legacy_flag="$5" # --ubuntu
+        local result=""
+        if [[ -n "$versions" ]]; then
+        IFS=',' read -ra arr <<< "$versions"
+        for v in "${arr[@]}"; do
+          v="${v#"${v%%[![:space:]]*}"}"
+          v="${v%"${v##*[![:space:]]}"}"
+          result+=" $flag $v"
+        done
+        elif [[ "$legacy" == "true" ]]; then
+          echo "::warning title=Legacy option::$name legacy flag used"
+          result="$legacy_flag"
         fi
+        echo "$name=$result" >> "$GITHUB_ENV"
+        }
+        set_versions "UBUNTU"  "--ubuntu-version"  "${{ inputs.ubuntu-version }}"  "${{ inputs.ubuntu }}"  "--ubuntu"
+        set_versions "WINDOWS" "--windows-version" "${{ inputs.windows-version }}" "${{ inputs.windows }}" "--windows"
+        set_versions "MACOS"   "--macos-version"   "${{ inputs.macos-version }}"   "${{ inputs.macos }}"   "--macos"
 
 
-    - name: Set up macOS options
-      shell: bash
-      run: |
-        echo "::debug::macOS: ${{ inputs.macos-version }}"
-        if [[ "${{ inputs.macos-version }}" != "" ]]
-        then
-          echo "::debug::macOS explicit version enabled: ${{ inputs.macos-version }}"
-          echo "MACOS=--macos-version=${{ inputs.macos-version }}" >> $GITHUB_ENV
-        elif [[ "${{ inputs.macos }}" == "true" ]]
-        then
-          echo "::warning title=Legacy option `macos`::macOS fallback enabled: ${{ inputs.macos }}"
-          echo "MACOS=--macos" >> $GITHUB_ENV
-        else echo "MACOS=" >> $GITHUB_ENV
-        fi
-
-    - name: Set up Ubuntu options
-      shell: bash
-      run: |
-        echo "::debug::ubuntu: ${{ inputs.ubuntu-version }}"
-        if [[ "${{ inputs.ubuntu-version }}" != "" ]]
-        then
-          echo "::debug::Ubuntu explicit version enabled: ${{ inputs.ubuntu-version }}"
-          echo "UBUNTU=--ubuntu-version=${{ inputs.ubuntu-version }}" >> "$GITHUB_ENV"
-        elif [[ "${{ inputs.ubuntu }}" == "true" ]]
-        then
-          echo "::warning title=Legacy option `ubuntu`::Ubuntu fallback enabled: ${{ inputs.ubuntu }}"
-          echo "UBUNTU=--ubuntu" >> $GITHUB_ENV
-        else echo "UBUNTU=" >> $GITHUB_ENV
-        fi
- 
     - name: Set up `oldest` and `newest` options
       shell: bash
       run: |

@@ -77,6 +77,7 @@ The inputs of the action (under the `with:` stanza) are the following:
   - `ubuntu` or `ubuntu-version`
  - Deprecated flags (`windows`, `macos`, `ubuntu`) use the latest version.
  - If both a deprecated flag and an explicit version are provided, the explicit version **takes priority**.
+ - The `*-version` inputs support comma-separated syntax to allow for multiple version selection (e.g. `"latest, 22.04"`).
 
 See below for an example:
 

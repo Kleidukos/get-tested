@@ -7,7 +7,6 @@ import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Text.Display
 import Data.Vector (Vector)
-import Data.Vector qualified as Vector
 import Distribution.Compiler
 import Distribution.Parsec (simpleParsec)
 import Distribution.Pretty qualified as Pretty
@@ -70,11 +69,3 @@ data PlatformAndVersion = PlatformAndVersion
   }
   deriving stock (Eq, Ord, Generic)
   deriving anyclass (ToJSON)
-
-osList :: Vector Text
-osList =
-  Vector.fromList
-    [ "ubuntu-latest"
-    , "macos-latest"
-    , "windows-latest"
-    ]
