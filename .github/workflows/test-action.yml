@@ -39,7 +39,7 @@ jobs:
         uses: ./
         with:
           cabal-file: get-tested.cabal
-          ubuntu-version: '18.04,latest'
+          ubuntu-version: '24.04,latest'
           version: 0.1.10.0-rc1
 
       - name: Output matrix
