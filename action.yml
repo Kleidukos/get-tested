@@ -129,9 +129,13 @@ runs:
            exit 1
         fi
         if [[ "$requested_version" == "" ]] || [[ "$requested_version" == "get-tested-head" ]] || dpkg --compare-versions "$requested_version" ge "$minium_modern_version"; then
+          set -x
           ./get-tested $WINDOWS $MACOS $UBUNTU $RELATIVE_VERSION "${{ inputs.cabal-file }}"
+          set +x
         else
+          set -x
           ./get-tested $WINDOWS $MACOS $UBUNTU $RELATIVE_VERSION "${{ inputs.cabal-file }}" >> "$GITHUB_OUTPUT"
+          set +x
         fi
 
 
