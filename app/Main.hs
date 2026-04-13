@@ -50,7 +50,7 @@ saveOutput :: ByteString -> IO ()
 saveOutput json = do
   lookupEnv "CI" >>= maybe printToStdout (const writeToOutput)
   where
-    writeMatrix outputFile = ByteString.writeFile outputFile (json <> "\n")
+    writeMatrix outputFile = ByteString.writeFile outputFile ("matrix=" <> json <> "\n")
     writeToOutput =
       lookupEnv "GITHUB_OUTPUT" >>= maybe printToStdout writeMatrix
     printToStdout = putStrLn $ ByteString.unpack json
@@ -99,7 +99,7 @@ runOptions options = do
     then pure $ Aeson.encode selectedCompilers
     else do
       let include = makePlatformAndVersion <$> filteredList <*> selectedCompilers
-      pure $ "matrix=" <> Aeson.encode (ActionMatrix include)
+      pure $ Aeson.encode (ActionMatrix include)
 
 withInfo :: Parser a -> String -> ParserInfo a
 withInfo opts desc = info (helper <*> opts) $ progDesc desc
