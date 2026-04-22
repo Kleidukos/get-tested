@@ -42,6 +42,7 @@ jobs:
       #   with:
       #     version: 0.1.7.0
       #     cabal-file: get-tested.cabal
+      #     versions-only: true
 
       - name: Extract the tested GHC versions with multiple runner versions
         id: multiple-runner-versions

@@ -44,7 +44,7 @@ inputs:
     description: "Enable only the oldest GHC version found in the cabal file"
     required: false
     default: 'false'
-  ghc-versions-only:
+  versions-only:
     description: "Return the list of version only"
     required: false
     default: 'false'
@@ -128,11 +128,11 @@ runs:
       run: |
         requested_version="${{ inputs.version }}"
         minium_modern_version="0.1.9.0"
-        ghc_versions_only="${{ inputs.ghc-versions-only }}"
+        versions_only="${{ inputs.versions-only }}"
         head-or-default () {
           [[ "$requested_version" == "" ]] || [[ "$requested_version" == "get-tested-head" ]]
         }
-        if head-or-default && [[ "$ghc_versions_only" == "true" ]]; then
+        if head-or-default && [[ "$versions_only" == "true" ]]; then
           set -x
           ./get-tested "${{ inputs.cabal-file }}"
           { set +x; } 2>/dev/null
