@@ -139,7 +139,7 @@ runs:
 
         if [[ "$versions_only" == "true" ]] && { head-or-default || dpkg --compare-versions "$normalized_requested" ge "$version_only_min_version"; }; then
           set -x
-          ./get-tested "${{ inputs.cabal-file }}"
+          ./get-tested $RELATIVE_VERSION "${{ inputs.cabal-file }}"
           { set +x; } 2>/dev/null
           exit 0
         fi
