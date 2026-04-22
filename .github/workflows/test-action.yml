@@ -30,7 +30,7 @@ jobs:
         id: old-naming-scheme
         if: ${{ matrix.os == 'ubuntu-latest' }}
         with:
-          version: 0.1.10.0-rc2
+          version: 0.1.7.0
           cabal-file: get-tested.cabal
           ubuntu-version: 'latest'
 
@@ -39,7 +39,7 @@ jobs:
         id: simple-list
         if: ${{ matrix.os == 'ubuntu-latest' }}
         with:
-          version: 0.1.7.0
+          version: 0.1.10.0-rc2
           cabal-file: get-tested.cabal
           versions-only: true
 
