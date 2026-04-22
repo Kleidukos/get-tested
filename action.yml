@@ -44,6 +44,10 @@ inputs:
     description: "Enable only the oldest GHC version found in the cabal file"
     required: false
     default: 'false'
+  versions-only:
+    description: "Return the list of version only"
+    required: false
+    default: 'false'
 
 outputs:
   matrix:
@@ -124,6 +128,15 @@ runs:
       run: |
         requested_version="${{ inputs.version }}"
         minium_modern_version="0.1.9.0"
+        versions_only="${{ inputs.versions-only }}"
+        head-or-default () {
+          [[ "$requested_version" == "" ]] || [[ "$requested_version" == "get-tested-head" ]]
+        }
+        if head-or-default && [[ "$versions_only" == "true" ]]; then
+          set -x
+          ./get-tested "${{ inputs.cabal-file }}"
+          { set +x; } 2>/dev/null
+        fi
         if [[ "$WINDOWS" == "" ]] && [[ "$MACOS" == "" ]] && [[ "$UBUNTU" == "" ]]; then
            echo "At least one runner needed, please check the README.md in the get-tested repo"
            exit 1
