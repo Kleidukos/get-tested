@@ -58,7 +58,7 @@ runs:
   using: "composite"
   steps:
     - name: Checkout base repo
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
       # The following does not work:
       #
