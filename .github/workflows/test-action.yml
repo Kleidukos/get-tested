@@ -34,15 +34,14 @@ jobs:
           cabal-file: get-tested.cabal
           ubuntu-version: 'latest'
 
-      # TODO: Uncomment this there is a release with this
-      # - name: Return a simple list of version
-      #   uses: ./
-      #   id: simple-list
-      #   if: ${{ matrix.os == 'ubuntu-latest' }}
-      #   with:
-      #     version: 0.1.7.0
-      #     cabal-file: get-tested.cabal
-      #     versions-only: true
+      - name: Return a simple list of version
+        uses: ./
+        id: simple-list
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        with:
+          version: 0.1.10.0-rc2
+          cabal-file: get-tested.cabal
+          versions-only: true
 
       - name: Extract the tested GHC versions with multiple runner versions
         id: multiple-runner-versions
@@ -61,9 +60,9 @@ jobs:
         run:
           jq '.' <<< '${{ steps.old-naming-scheme.outputs.matrix }}'
 
-      # - name: Output matrix for simple list
-      #   shell: bash
-      #   run: jq '.' <<< '${{ steps.simple-list.outputs.matrix }}'
+      - name: Output matrix for simple list
+        shell: bash
+        run: jq '.' <<< '${{ steps.simple-list.outputs.matrix }}'
 
       - name: Output matrix for multiple runner versions
         shell: bash
