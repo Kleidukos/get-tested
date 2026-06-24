@@ -128,20 +128,26 @@ runs:
       run: |
         requested_version="${{ inputs.version }}"
         minium_modern_version="0.1.9.0"
+        version_only_min_version="0.1.10.0~rc2"
         versions_only="${{ inputs.versions-only }}"
+        normalized_requested="$(echo "$requested_version" | sed 's/-rc/~rc/')"
+
         head-or-default () {
           [[ "$requested_version" == "" ]] || [[ "$requested_version" == "get-tested-head" ]]
         }
-        if head-or-default && [[ "$versions_only" == "true" ]]; then
+
+        if [[ "$versions_only" == "true" ]] && { head-or-default || dpkg --compare-versions "$normalized_requested" ge "$version_only_min_version"; }; then
           set -x
-          ./get-tested "${{ inputs.cabal-file }}"
+          ./get-tested $RELATIVE_VERSION "${{ inputs.cabal-file }}"
           { set +x; } 2>/dev/null
+          exit 0
         fi
+
         if [[ "$WINDOWS" == "" ]] && [[ "$MACOS" == "" ]] && [[ "$UBUNTU" == "" ]]; then
            echo "At least one runner needed, please check the README.md in the get-tested repo"
            exit 1
         fi
-        if [[ "$requested_version" == "" ]] || [[ "$requested_version" == "get-tested-head" ]] || dpkg --compare-versions "$requested_version" ge "$minium_modern_version"; then
+        if [[ "$requested_version" == "" ]] || [[ "$requested_version" == "get-tested-head" ]] || dpkg --compare-versions "$normalized_requested" ge "$minium_modern_version"; then
           set -x
           ./get-tested $WINDOWS $MACOS $UBUNTU $RELATIVE_VERSION "${{ inputs.cabal-file }}"
           { set +x; } 2>/dev/null
