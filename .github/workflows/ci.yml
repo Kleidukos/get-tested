@@ -228,7 +228,7 @@ jobs:
     - name: Consolidate artifacts into release_files
       run: bash ./.github/scripts/consolidate_artifacts.sh
 
-    - run: .github/scripts/create_head_release.sh
+    - run: bash ./.github/scripts/create_head_release.sh
 
     - name: Create GitHub Release (upload files)
       if: ${{ ! contains(github.event.pull_request.labels.*.name, 'release-workflow-fixes') }}
