@@ -1,3 +1,5 @@
+git fetch
+
 files_changed=$(git --no-pager diff --name-only main)
 
 if [[ echo "$files_changed" | grep -E '^(action.yml)|(setup-get-tested/action.yml)$' ]]; then
