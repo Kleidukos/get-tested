@@ -226,7 +226,7 @@ jobs:
         path: ./out
 
     - name: Consolidate artifacts into release_files
-      run: bash ./.github/scripts/consildate_artifacts.sh
+      run: bash ./.github/scripts/consolidate_artifacts.sh
 
     - name: Create GitHub Release (upload files)
       if: ${{ ! contains(github.event.pull_request.labels.*.name, 'release-workflow-fixes') }}
