@@ -5,7 +5,7 @@ TAG="${1:-get-tested-head}"
 
 git fetch
 
-files_changed=$(git --no-pager diff --name-only origin/main)
+files_changed=$(git --no-pager diff --name-only origin/get-tested-head)
 if ! echo "$files_changed" | grep -qE '^(action\.yml|setup-get-tested/action\.yml)$'; then
   echo "No relevant files changed, skipping tag update."
   exit 0
