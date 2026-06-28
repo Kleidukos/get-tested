@@ -229,6 +229,8 @@ jobs:
       run: bash ./.github/scripts/consolidate_artifacts.sh
 
     - run: bash ./.github/scripts/create_head_release.sh
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create GitHub Release (upload files)
       if: ${{ ! contains(github.event.pull_request.labels.*.name, 'release-workflow-fixes') }}
