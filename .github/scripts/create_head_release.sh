@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eu
+#set -eu
 
 TAG="${1:-get-tested-head}"
 
