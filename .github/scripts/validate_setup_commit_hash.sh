@@ -34,4 +34,6 @@ echo "Comparing ${setup_action} at tag ${tag} with commit ${commit_hash}"
 if ! git --no-pager diff --quiet "$tag" "$commit_hash" -- "$setup_action"; then
     echo "please update the commit hash in $action_yml"
     exit 1
+else
+    echo "OK."
 fi
