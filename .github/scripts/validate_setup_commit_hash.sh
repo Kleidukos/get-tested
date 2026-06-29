@@ -3,7 +3,11 @@ set -eu
 
 HEAD_TAG="get-tested-head"
 
-git fetch
+git fetch 2> /tmp/git_fetch_log
+
+if [[ $? -ne 0 ]]; then
+    gcat /tmp/git_fetch_log
+fi
 
 tag=$(git --no-pager tag -l | grep -v "$HEAD_TAG" | sort -V | tail -1)
 
