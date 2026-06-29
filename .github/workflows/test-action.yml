@@ -17,7 +17,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v7
 
-      - run: bash ./github/scripts/validate_setup_commit_hash.sh
+      - run: bash ./.github/scripts/validate_setup_commit_hash.sh
 
       - name: Extract the tested GHC versions
         id: create-matrix
