@@ -16,13 +16,13 @@ jobs:
     steps:
       - name: Extract the tested GHC versions
         id: set-matrix
-        uses: kleidukos/get-tested@0.1.7.1
+        uses: kleidukos/get-tested@get-tested-head
         with:
           cabal-file: get-tested.cabal
           ubuntu-version: 'latest'
           macos-version: 'latest'
           windows-version: 'latest'
-          version: 0.1.7.0
+          version: get-tested-head
   build:
     name: "${{ matrix.ghc }} on ${{ matrix.os }}"
     needs: generate-matrix
