@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - run: bash ./.github/scripts/validate_setup_commit_hash.sh
 
