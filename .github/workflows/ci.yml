@@ -228,19 +228,9 @@ jobs:
     - name: Consolidate artifacts into release_files
       run: bash ./.github/scripts/consolidate_artifacts.sh
 
-    - run: bash ./.github/scripts/create_head_release.sh
+    - name: Update the get-tested-head tag and draft prerelease
+      run: bash ./.github/scripts/create_head_release.sh
       id: create-head-release
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Create GitHub Release (upload files)
-      if: |
-        !contains(github.event.pull_request.labels.*.name, 'release-workflow-fixes') &&
-        steps.create-head-release.outputs.new_release_needed == 'true'
-      uses: softprops/action-gh-release@v3
-      with:
-        draft: true
-        prerelease: true
-        files: 'release_files/*'
-        tag_name: get-tested-head
-        fail_on_unmatched_files: true
+        DRY_RUN: ${{ github.ref != 'refs/heads/main' }}
