@@ -9,4 +9,8 @@ updates:
       # Check for updates to GitHub Actions every week
       interval: "weekly"
     ignore:
-      - dependency-name: "Kleidukos/get-tested"
+      # Self-referential: setup-get-tested is pinned by commit hash in action.yml.
+      # Auto-bumping it churns action.yml on every merge and recreates the
+      # get-tested-head prerelease for no real change. The wildcard covers both
+      # the top-level action and the setup-get-tested sub-action.
+      - dependency-name: "Kleidukos/get-tested*"
