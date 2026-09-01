@@ -14,8 +14,8 @@ lint: ## Run the code linter (HLint)
 	@find app src test -name "*.hs" | xargs -P $(PROCS) -I {} hlint --refactor-options="-i" --refactor {}
 
 style: ## Run the code styler (fourmolu)
+	@cabal-gild *.cabal
 	@fourmolu -q --mode inplace app src test
-	@cabal-fmt -i *.cabal
 
 help: ## Display this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.* ?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

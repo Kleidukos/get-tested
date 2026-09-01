@@ -1,35 +1,52 @@
-name: Linting
+name: Formatting
 
 on:
   pull_request:
+    paths:
+      - "**.hs"
+      - .github/workflows/fourmolu.yaml
   push:
-    branches: ["main"]
+    branches:
+      - master
+    paths:
+      - "**.hs"
+      - .github/workflows/fourmolu.yaml
 
 jobs:
   fourmolu:
-    runs-on: ubuntu-latest
+    runs-on:
+      - ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+      - uses: haskell-actions/run-fourmolu@v13
+        with:
+          version: "0.20.0.0"
+          pattern: |
+            src/**/*.hs
+            test/**/*.hs
+            app/**/*.hs
 
-    - uses: fourmolu/fourmolu-action@v13
-      with:
-        pattern: |
-          app/**/*.hs
-          src/**/*.hs
-          test/**/*.hs
-
+  cabal-gild:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: tfausak/cabal-gild-setup-action@v2
+        with:
+          version: 1.6.0.2
+      - run: cabal-gild --input ghcup-gtk.cabal --mode check
   hlint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v7
 
     - name: 'Set up HLint'
       uses: haskell-actions/hlint-setup@v2
       with:
-        version: '3.8'
+        version: '3.10'
 
     - name: 'Run HLint'
       uses: haskell-actions/hlint-run@v2
       with:
-        path: '["app", "test", "src"]'
+        path: '["src/", "test/", "app/"]'
         fail-on: warning
+

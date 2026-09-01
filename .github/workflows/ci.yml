@@ -103,7 +103,7 @@ jobs:
           path: ${{ env.ARTIFACT_NAME }}
 
   build-alpine:
-    name: 9.10.2 on alpine-3.20
+    name: 9.14.1 on alpine-3.20
     runs-on: ubuntu-latest
     container: "alpine:3.20"
     needs: generate-matrix
@@ -122,7 +122,7 @@ jobs:
       - uses: haskell-actions/setup@v2
         id: setup-haskell
         with:
-          ghc-version: "9.10.2"
+          ghc-version: "9.14.1"
           cabal-version: "latest"
 
       - name: Configure

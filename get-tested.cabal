@@ -1,19 +1,17 @@
-cabal-version:   3.4
-name:            get-tested
-version:         0.1.10.0
-synopsis:        Get the tested-with stanza of your Cabal file
-
+cabal-version: 3.4
+name: get-tested
+version: 0.1.10.0
+synopsis: Get the tested-with stanza of your Cabal file
 -- description:
-homepage:        https://github.com/Kleidukos/get-tested
-license:         BSD-3-Clause
-license-file:    LICENSE
-author:          Hécate Kleidukos
-maintainer:      hecate+github@glitchbra.in
-tested-with:     GHC ==9.10.2
-
+homepage: https://github.com/Kleidukos/get-tested
+license: BSD-3-Clause
+license-file: LICENSE
+author: Hécate Kleidukos
+maintainer: hecate+github@glitchbra.in
+tested-with: ghc ==9.14.1
 -- copyright:
-category:        Development
-build-type:      Simple
+category: Development
+build-type: Simple
 extra-doc-files: CHANGELOG.md
 
 common extensions
@@ -31,81 +29,98 @@ common extensions
     StrictData
     TypeFamilies
 
-  default-language:   GHC2024
+  default-language: GHC2024
 
 common ghc-options
   ghc-options:
-    -Wall -Wcompat -Widentities -Wincomplete-record-updates
-    -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints
-    -fhide-source-paths -Wno-unused-do-bind -fshow-hole-constraints
-    -fprint-potential-instances -Wno-unticked-promoted-constructors
-    -Werror=unused-imports -flate-specialise -funbox-strict-fields
-    -finline-generics-aggressively -fexpose-all-unfoldings -threaded
+    -Wall
+    -Wcompat
+    -Widentities
+    -Wincomplete-record-updates
+    -Wincomplete-uni-patterns
+    -Wpartial-fields
+    -Wredundant-constraints
+    -fhide-source-paths
+    -Wno-unused-do-bind
+    -fshow-hole-constraints
+    -fprint-potential-instances
+    -Wno-unticked-promoted-constructors
+    -Werror=unused-imports
+    -flate-specialise
+    -funbox-strict-fields
+    -finline-generics-aggressively
+    -fexpose-all-unfoldings
+    -threaded
     -Wunused-packages
 
-  ghc-prof-options: -fprof-auto -fno-prof-count-entries -fprof-auto-calls
+  ghc-prof-options:
+    -fprof-auto
+    -fno-prof-count-entries
+    -fprof-auto-calls
 
 common rts-options
-  ghc-options: -rtsopts -threaded "-with-rtsopts=-N -T"
+  ghc-options:
+    -rtsopts
+    -threaded
+    "-with-rtsopts=-N -T"
 
 library
-  import:          extensions
-  import:          ghc-options
-  hs-source-dirs:  src
-
-  -- cabal-fmt: expand src/
+  import: extensions
+  import: ghc-options
+  hs-source-dirs: src
+  -- cabal-gild: discover src/
   exposed-modules:
     GetTested.CLI.Types
     GetTested.Extract
     GetTested.Types
 
   build-depends:
-    , aeson            ^>=2.2
-    , base             >=4.19
-    , bytestring       >=0.11
-    , Cabal-syntax     >=3.10.3
-    , effectful
-    , nonempty-vector  ^>=0.2.3
-    , text             ^>=2.1
-    , text-display     ^>=1.0
-    , vector           ^>=0.13
+    aeson ^>=2.2,
+    base >=4.19,
+    bytestring >=0.11,
+    Cabal-syntax >=3.10.3,
+    effectful,
+    nonempty-vector ^>=0.2.3,
+    text ^>=2.1,
+    text-display ^>=1.0,
+    vector ^>=0.13,
 
 executable get-tested
-  import:         extensions
-  import:         ghc-options
-  import:         rts-options
-  main-is:        Main.hs
-  other-modules:  Paths_get_tested
+  import: extensions
+  import: ghc-options
+  import: rts-options
+  main-is: Main.hs
+  other-modules: Paths_get_tested
   build-depends:
-    , aeson                 ^>=2.2
-    , base                  >=4.19  && <4.22
-    , bytestring            >=0.11  && <0.13
-    , effectful             >=2.3   && <2.6
-    , get-tested
-    , optparse-applicative  ^>=0.18
-    , text                  ^>=2.1
-    , text-display          ^>=1.0
-    , vector                ^>=0.13
+    aeson ^>=2.2,
+    base >=4.19 && <4.22,
+    bytestring >=0.11 && <0.13,
+    effectful >=2.3 && <2.6,
+    get-tested,
+    optparse-applicative ^>=0.18,
+    text ^>=2.1,
+    text-display ^>=1.0,
+    vector ^>=0.13,
 
   hs-source-dirs: app
 
 test-suite get-tested-test
-  import:         extensions
-  import:         ghc-options
-  import:         rts-options
-  type:           exitcode-stdio-1.0
+  import: extensions
+  import: ghc-options
+  import: rts-options
+  type: exitcode-stdio-1.0
   hs-source-dirs: test
-  main-is:        Main.hs
+  main-is: Main.hs
   other-modules:
     ExtractTest
     Utils
 
   build-depends:
-    , base
-    , Cabal-syntax
-    , effectful
-    , get-tested
-    , tasty
-    , tasty-hunit
-    , tasty-test-reporter
-    , vector
+    base,
+    Cabal-syntax,
+    effectful,
+    get-tested,
+    tasty,
+    tasty-hunit,
+    tasty-test-reporter,
+    vector,
