@@ -80,7 +80,6 @@ runOptions options = do
         processOSFlag MacOS options.macosFlag options.macosVersion
           <> processOSFlag Ubuntu options.ubuntuFlag options.ubuntuVersion
           <> processOSFlag Windows options.windowsFlag options.windowsVersion
-
       include = PlatformsAndVersions filteredList selectedCompilers
   pure $ Aeson.encode (ActionMatrix include)
 
