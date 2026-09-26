@@ -33,7 +33,7 @@ jobs:
       - uses: tfausak/cabal-gild-setup-action@v2
         with:
           version: 1.6.0.2
-      - run: cabal-gild --input ghcup-gtk.cabal --mode check
+      - run: cabal-gild --input get-tested.cabal --mode check
   hlint:
     runs-on: ubuntu-24.04
     steps:
