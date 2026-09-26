@@ -56,16 +56,14 @@ instance FromJSON VersionRange where
     maybe (fail "Invalid version range") pure (simpleParsec $ Text.unpack s)
 
 data ActionMatrix = ActionMatrix
-  { include :: Vector PlatformAndVersion
+  { include :: PlatformsAndVerions
   }
   deriving stock (Eq, Ord, Generic)
   deriving anyclass (ToJSON)
 
-data PlatformAndVersion = PlatformAndVersion
-  { os :: Text
-  , ghc :: Version
-  , oldest :: Bool
-  , newest :: Bool
+data PlatformsAndVerions = PlatformsAndVersions
+  { os :: Vector Text
+  , ghc :: Vector Version
   }
   deriving stock (Eq, Ord, Generic)
   deriving anyclass (ToJSON)

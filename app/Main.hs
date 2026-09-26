@@ -80,26 +80,9 @@ runOptions options = do
         processOSFlag MacOS options.macosFlag options.macosVersion
           <> processOSFlag Ubuntu options.ubuntuFlag options.ubuntuVersion
           <> processOSFlag Windows options.windowsFlag options.windowsVersion
-      isOldestCompiler =
-        if Vector.null selectedCompilers
-          then const False
-          else \version -> version == Vector.minimum selectedCompilers
-      isNewestCompiler =
-        if Vector.null selectedCompilers
-          then const False
-          else \version -> version == Vector.maximum selectedCompilers
-      makePlatformAndVersion os ghc =
-        PlatformAndVersion
-          { os
-          , ghc
-          , oldest = isOldestCompiler ghc
-          , newest = isNewestCompiler ghc
-          }
-  if null filteredList
-    then pure $ Aeson.encode selectedCompilers
-    else do
-      let include = makePlatformAndVersion <$> filteredList <*> selectedCompilers
-      pure $ Aeson.encode (ActionMatrix include)
+
+      include = PlatformsAndVersions filteredList selectedCompilers
+  pure $ Aeson.encode (ActionMatrix include)
 
 withInfo :: Parser a -> String -> ParserInfo a
 withInfo opts desc = info (helper <*> opts) $ progDesc desc
