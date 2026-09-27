@@ -69,8 +69,16 @@ The inputs of the action (under the `with:` stanza) are the following:
    _Required:_ false \
    _Default:_ false
 
+*  `versions-only:` \
+   Return only the list of GHC versions, e.g. `["9.12.2","9.14.1"]`, instead
+   of a full matrix. The platform inputs are ignored, so you write the rest of
+   the matrix yourself. Requires version 0.1.10.0 or later.
+   \
+   _Required:_ false \
+   _Default:_ false
+
 **Important:**
-- You **must** specify at least one platform to run tests.
+- Unless `versions-only` is set, you **must** specify at least one platform to run tests.
 - This means at least one of the following six inputs must be provided:
   - `windows` or `windows-version`
   - `macos` or `macos-version`
@@ -106,3 +114,32 @@ jobs:
 ```
 
 ![](./showcase.png)
+
+If you want to build the matrix yourself, for example to add your own `include`
+or `exclude` entries, use `versions-only` and read the GHC versions from the
+output:
+
+```yaml
+jobs:
+  generate-matrix:
+    name: "Generate matrix from cabal"
+    outputs:
+      ghc: ${{ steps.set-matrix.outputs.matrix }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract the tested GHC versions
+        id: set-matrix
+        uses: kleidukos/get-tested@v0.1.10.0
+        with:
+          cabal-file: get-tested.cabal
+          versions-only: true
+          version: 0.1.10.0
+  tests:
+    name: ${{ matrix.ghc }} on ${{ matrix.os }}
+    needs: generate-matrix
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        ghc: ${{ fromJSON(needs.generate-matrix.outputs.ghc) }}
+        os: [ubuntu-latest, macos-latest]
+```
