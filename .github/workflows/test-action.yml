@@ -55,22 +55,36 @@ jobs:
           ubuntu-version: '24.04,latest'
           version: 0.1.10.0-rc1
 
-      - name: Output matrix
+      - name: Check the matrix
         shell: bash
-        run: jq '.' <<< '${{ steps.create-matrix.outputs.matrix }}'
+        env:
+          MATRIX: ${{ steps.create-matrix.outputs.matrix }}
+        run: |
+          bash ./.github/scripts/check_matrix_shape.sh matrix \
+            '["macos-latest", "ubuntu-latest"]' '["ghc", "os", "newest", "oldest"]' <<< "$MATRIX"
 
-      - name: Output matrix for old naming scheme
+      - name: Check the matrix for old naming scheme
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        run:
-          jq '.' <<< '${{ steps.old-naming-scheme.outputs.matrix }}'
-
-      - name: Output matrix for simple list
         shell: bash
-        run: jq '.' <<< '${{ steps.simple-list.outputs.matrix }}'
+        env:
+          MATRIX: ${{ steps.old-naming-scheme.outputs.matrix }}
+        run: |
+          bash ./.github/scripts/check_matrix_shape.sh matrix '["ubuntu-latest"]' '["ghc", "os"]' <<< "$MATRIX"
 
-      - name: Output matrix for multiple runner versions
+      - name: Check the simple list
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         shell: bash
-        run: jq '.' <<< '${{ steps.multiple-runner-versions.outputs.matrix }}'
+        env:
+          MATRIX: ${{ steps.simple-list.outputs.matrix }}
+        run: bash ./.github/scripts/check_matrix_shape.sh versions <<< "$MATRIX"
+
+      - name: Check the matrix for multiple runner versions
+        shell: bash
+        env:
+          MATRIX: ${{ steps.multiple-runner-versions.outputs.matrix }}
+        run: |
+          bash ./.github/scripts/check_matrix_shape.sh matrix \
+            '["ubuntu-24.04", "ubuntu-latest"]' '["ghc", "os", "newest", "oldest"]' <<< "$MATRIX"
 
       - name: Set up without options
         id: setup
@@ -101,3 +115,66 @@ jobs:
             echo "Is NOT executable"
             exit 1
           fi
+
+  generate-matrix:
+    name: Generate matrices to consume
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      versions: ${{ steps.versions.outputs.matrix }}
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v7
+
+      - name: Generate the matrix
+        id: matrix
+        uses: ./
+        with:
+          cabal-file: get-tested.cabal
+          ubuntu-version: 'latest'
+          macos-version: 'latest'
+
+      - name: Generate the list of versions
+        id: versions
+        uses: ./
+        with:
+          cabal-file: get-tested.cabal
+          versions-only: true
+
+  consume-matrix:
+    name: Use ${{ matrix.ghc }} on ${{ matrix.os }} as a matrix
+    needs: generate-matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
+    steps:
+      - name: Check the matrix values
+        shell: bash
+        env:
+          GHC: ${{ matrix.ghc }}
+          OS: ${{ matrix.os }}
+          NEWEST: ${{ matrix.newest }}
+          OLDEST: ${{ matrix.oldest }}
+        run: |
+          echo "ghc=$GHC os=$OS newest=$NEWEST oldest=$OLDEST"
+          [[ -n "$GHC" && -n "$OS" && -n "$NEWEST" && -n "$OLDEST" ]]
+
+  consume-versions-only:
+    name: Use ${{ matrix.ghc }} from versions-only as a matrix axis
+    needs: generate-matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        ghc: ${{ fromJSON(needs.generate-matrix.outputs.versions) }}
+        os: [ubuntu-latest]
+    steps:
+      - name: Check the matrix values
+        shell: bash
+        env:
+          GHC: ${{ matrix.ghc }}
+        run: |
+          echo "ghc=$GHC"
+          [[ -n "$GHC" ]]

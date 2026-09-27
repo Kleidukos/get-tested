@@ -178,6 +178,76 @@ jobs:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.ARTIFACT_NAME }}
 
+  check-output:
+    name: Check the output of the built executable
+    needs: build-alpine
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      matrix: ${{ steps.run.outputs.matrix }}
+      versions: ${{ steps.run.outputs.versions }}
+    steps:
+      - name: Checkout base repo
+        uses: actions/checkout@v7
+
+      - name: Download the static executable
+        uses: actions/download-artifact@v8
+        with:
+          name: get-tested-head-Linux-static-x86_64
+
+      - name: Run the executable and check its output
+        id: run
+        shell: bash
+        run: |
+          executable=./get-tested-head-Linux-static-x86_64
+          chmod +x "$executable"
+          matrix=$(env -u CI "$executable" --ubuntu-version latest --macos-version latest get-tested.cabal)
+          versions=$(env -u CI "$executable" get-tested.cabal)
+          bash ./.github/scripts/check_matrix_shape.sh matrix \
+            '["macos-latest", "ubuntu-latest"]' '["ghc", "os", "newest", "oldest"]' <<< "$matrix"
+          bash ./.github/scripts/check_matrix_shape.sh versions <<< "$versions"
+          {
+            echo "matrix=$matrix"
+            echo "versions=$versions"
+          } >> "$GITHUB_OUTPUT"
+
+  consume-built-matrix:
+    name: Use ${{ matrix.ghc }} on ${{ matrix.os }} from the built executable as a matrix
+    needs: check-output
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix: ${{ fromJSON(needs.check-output.outputs.matrix) }}
+    steps:
+      - name: Check the matrix values
+        shell: bash
+        env:
+          GHC: ${{ matrix.ghc }}
+          OS: ${{ matrix.os }}
+          NEWEST: ${{ matrix.newest }}
+          OLDEST: ${{ matrix.oldest }}
+        run: |
+          echo "ghc=$GHC os=$OS newest=$NEWEST oldest=$OLDEST"
+          [[ -n "$GHC" && -n "$OS" && -n "$NEWEST" && -n "$OLDEST" ]]
+
+  consume-built-versions:
+    name: Use ${{ matrix.ghc }} from the built executable as a matrix axis
+    needs: check-output
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        ghc: ${{ fromJSON(needs.check-output.outputs.versions) }}
+        os: [ubuntu-latest]
+    steps:
+      - name: Check the matrix values
+        shell: bash
+        env:
+          GHC: ${{ matrix.ghc }}
+        run: |
+          echo "ghc=$GHC"
+          [[ -n "$GHC" ]]
+
   collect-test-results:
     name: Collect test results
     runs-on: ubuntu-latest
