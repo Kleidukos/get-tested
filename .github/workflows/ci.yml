@@ -281,7 +281,7 @@ jobs:
       github.ref == 'refs/heads/main' ||
       contains(github.event.pull_request.labels.*.name, 'release-workflow-fixes')
 
-    needs: ["build", "build-alpine"]
+    needs: ["build", "build-alpine", "check-output", "consume-built-matrix", "consume-built-versions"]
     permissions:
       contents: write
 
