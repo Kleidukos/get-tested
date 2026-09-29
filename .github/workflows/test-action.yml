@@ -55,7 +55,21 @@ jobs:
           ubuntu-version: '24.04,latest'
           version: 0.1.10.0-rc1
 
-      - name: Check the matrix
+      - name: Return a simple list with an explicit version
+        id: simple-list-explicit-version
+        uses: ./
+        with:
+          version: 0.1.10.0
+          cabal-file: get-tested.cabal
+          versions-only: true
+
+      - name: Check the simple list with an explicit version
+        shell: bash
+        env:
+          MATRIX: ${{ steps.simple-list-explicit-version.outputs.matrix }}
+        run: jq -e 'type == "array" and length > 0 and all(.[]; type == "string")' <<< "$MATRIX"
+
+      - name: Output matrix
         shell: bash
         env:
           MATRIX: ${{ steps.create-matrix.outputs.matrix }}

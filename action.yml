@@ -128,15 +128,38 @@ runs:
       run: |
         requested_version="${{ inputs.version }}"
         minium_modern_version="0.1.9.0"
-        version_only_min_version="0.1.10.0~rc2"
+        version_only_min_version="0.1.10.0-rc2"
         versions_only="${{ inputs.versions-only }}"
-        normalized_requested="$(echo "$requested_version" | sed 's/-rc/~rc/')"
 
         head-or-default () {
           [[ "$requested_version" == "" ]] || [[ "$requested_version" == "get-tested-head" ]]
         }
 
-        if [[ "$versions_only" == "true" ]] && { head-or-default || dpkg --compare-versions "$normalized_requested" ge "$version_only_min_version"; }; then
+        version_at_least () {
+          local candidate="$1" minimum="$2"
+          local candidate_base="${candidate%%-rc*}" minimum_base="${minimum%%-rc*}"
+          local candidate_rc=999999 minimum_rc=999999
+          if [[ "$candidate" == *-rc* ]]; then candidate_rc="${candidate##*-rc}"; fi
+          if [[ "$minimum" == *-rc* ]]; then minimum_rc="${minimum##*-rc}"; fi
+          if ! [[ "$candidate_base" =~ ^[0-9]+(\.[0-9]+)*$ && "$candidate_rc" =~ ^[0-9]+$ ]]; then
+            return 1
+          fi
+          local -a candidate_parts minimum_parts
+          IFS=. read -ra candidate_parts <<< "$candidate_base"
+          IFS=. read -ra minimum_parts <<< "$minimum_base"
+          local i candidate_part minimum_part
+          for (( i = 0; i < ${#candidate_parts[@]} || i < ${#minimum_parts[@]}; i++ )); do
+            candidate_part="${candidate_parts[i]:-0}"
+            minimum_part="${minimum_parts[i]:-0}"
+            if (( 10#$candidate_part != 10#$minimum_part )); then
+              (( 10#$candidate_part > 10#$minimum_part ))
+              return
+            fi
+          done
+          (( candidate_rc >= minimum_rc ))
+        }
+
+        if [[ "$versions_only" == "true" ]] && { head-or-default || version_at_least "$requested_version" "$version_only_min_version"; }; then
           set -x
           ./get-tested $RELATIVE_VERSION "${{ inputs.cabal-file }}"
           { set +x; } 2>/dev/null
@@ -147,7 +170,7 @@ runs:
            echo "At least one runner needed, please check the README.md in the get-tested repo"
            exit 1
         fi
-        if [[ "$requested_version" == "" ]] || [[ "$requested_version" == "get-tested-head" ]] || dpkg --compare-versions "$normalized_requested" ge "$minium_modern_version"; then
+        if [[ "$requested_version" == "" ]] || [[ "$requested_version" == "get-tested-head" ]] || version_at_least "$requested_version" "$minium_modern_version"; then
           set -x
           ./get-tested $WINDOWS $MACOS $UBUNTU $RELATIVE_VERSION "${{ inputs.cabal-file }}"
           { set +x; } 2>/dev/null
